@@ -1,0 +1,229 @@
+local l_Players_0 = game:GetService("Players");
+local l_RunService_0 = game:GetService("RunService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_CurrentCamera_0 = game:GetService("Workspace").CurrentCamera;
+local l_Workspace_0 = game:GetService("Workspace");
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v6 = nil;
+local v7 = false;
+local v8 = nil;
+local v9 = true;
+local _ = false;
+local v11 = false;
+local v12 = nil;
+local v13 = nil;
+workspace.FallenPartsDestroyHeight = -math.huge;
+local function v17(v14) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_Players_0 (ref), l_LocalPlayer_0 (ref)
+    for _, v16 in pairs(l_Players_0:GetPlayers()) do
+        if v16 ~= l_LocalPlayer_0 and (string.find(string.lower(v16.Name), string.lower(v14), 1, true) or string.find(string.lower(v16.DisplayName), string.lower(v14), 1, true)) then
+            return v16;
+        end;
+    end;
+    return nil;
+end;
+local function v19() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_LocalPlayer_0 (ref)
+    local v18 = l_LocalPlayer_0.Character and l_LocalPlayer_0.Character:FindFirstChildOfClass("Tool");
+    if v18 then
+        return v18.Name;
+    else
+        return nil;
+    end;
+end;
+local function v22(v20) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_LocalPlayer_0 (ref)
+    local l_FirstChild_0 = l_LocalPlayer_0.DataFolder.Inventory:FindFirstChild(v20);
+    if l_FirstChild_0 then
+        return tonumber(l_FirstChild_0.Value) or 0;
+    else
+        return 0;
+    end;
+end;
+local _ = function(v23) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_Workspace_0 (ref), l_ReplicatedStorage_0 (ref)
+    local _ = l_Workspace_0:WaitForChild("Ignored"):WaitForChild("Shop");
+    local v25 = ({
+        ["[Revolver]"] = "12 [Revolver Ammo] - $82", 
+        ["[AUG]"] = "90 [AUG Ammo] - $87", 
+        ["[LMG]"] = "200 [LMG Ammo] - $328", 
+        ["[Rifle]"] = "5 [Rifle Ammo] - $273", 
+        ["[AK47]"] = "90 [AK47 Ammo] - $87", 
+        ["[SMG]"] = "80 [SMG Ammo] - $66"
+    })[v23];
+    if not v25 then
+        return;
+    else
+        l_ReplicatedStorage_0.MainEvent:FireServer("BuyAmmo", v25);
+        return;
+    end;
+end;
+local function v34() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v19 (ref), v22 (ref), v9 (ref), v7 (ref), l_LocalPlayer_0 (ref)
+    local v27 = v19();
+    if v27 and v22(v27) == 0 and v9 then
+        wait(0.2);
+        v7 = false;
+        local v28 = l_LocalPlayer_0.Character and l_LocalPlayer_0.Character:FindFirstChildOfClass("Tool");
+        if v28 then
+            v28.Parent = l_LocalPlayer_0.Backpack;
+        end;
+        local v29 = ({
+            ["[Revolver]"] = "12 [Revolver Ammo] - $82", 
+            ["[LMG]"] = "200 [LMG Ammo] - $328", 
+            ["[Rifle]"] = "5 [Rifle Ammo] - $273", 
+            ["[AUG]"] = "90 [AUG Ammo] - $87"
+        })[v27];
+        if v29 then
+            local l_FirstChild_1 = game.Workspace.Ignored.Shop:FindFirstChild(v29);
+            if l_FirstChild_1 and l_FirstChild_1:FindFirstChild("Head") then
+                local l_Head_0 = l_FirstChild_1.Head;
+                l_LocalPlayer_0.Character.HumanoidRootPart.CFrame = l_Head_0.CFrame + Vector3.new(0, 8, 0);
+                if (l_LocalPlayer_0.Character.HumanoidRootPart.Position - l_Head_0.Position).Magnitude <= 80 then
+                    wait(0.2);
+                    local l_ClickDetector_0 = l_FirstChild_1:FindFirstChild("ClickDetector");
+                    if l_ClickDetector_0 then
+                        fireclickdetector(l_ClickDetector_0, 20);
+                    end;
+                    wait(0.01);
+                end;
+            end;
+        end;
+        wait(0.3);
+        local l_FirstChild_2 = l_LocalPlayer_0.Backpack:FindFirstChild(v27);
+        if l_FirstChild_2 then
+            l_FirstChild_2.Parent = l_LocalPlayer_0.Character;
+        end;
+        v7 = true;
+    end;
+end;
+startTeleport = function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v11 (ref), v12 (ref), l_LocalPlayer_0 (ref)
+    if v11 then
+        return;
+    else
+        v11 = true;
+        v12 = task.spawn(function() --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: v11 (ref), l_LocalPlayer_0 (ref)
+            while v11 do
+                local v35 = math.random(-4444, 4444);
+                local v36 = math.random(4444, 4444);
+                local v37 = math.random(-4444, 4444);
+                local v38 = l_LocalPlayer_0.Character.HumanoidRootPart.Position + Vector3.new(v35, v36, v37);
+                l_LocalPlayer_0.Character.HumanoidRootPart.CFrame = CFrame.new(v38);
+                task.wait(0.01);
+            end;
+        end);
+        return;
+    end;
+end;
+stopTeleport = function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v11 (ref)
+    v11 = false;
+end;
+local v39 = nil;
+local function v43(v40) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v39 (ref), l_RunService_0 (ref), l_Players_0 (ref), l_ReplicatedStorage_0 (ref)
+    if v40 and not v39 then
+        v39 = l_RunService_0:BindToRenderStep("Auto-Reload", 0, function() --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: l_Players_0 (ref), l_ReplicatedStorage_0 (ref)
+            local _ = l_Players_0.LocalPlayer;
+            local v42 = l_Players_0.LocalPlayer.Character and l_Players_0.LocalPlayer.Character:FindFirstChildWhichIsA("Tool");
+            if v42 and v42:FindFirstChild("Ammo") and v42.Ammo.Value <= 0 then
+                l_ReplicatedStorage_0.MainEvent:FireServer("Reload", v42);
+                wait(0.1);
+            end;
+        end);
+    elseif not v40 and v39 then
+        l_RunService_0:UnbindFromRenderStep("Auto-Reload");
+        v39 = nil;
+    end;
+end;
+local function v56() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v7 (ref), v6 (ref), v34 (ref), v43 (ref), l_LocalPlayer_0 (ref), l_ReplicatedStorage_0 (ref), l_RunService_0 (ref), l_CurrentCamera_0 (ref)
+    v7 = true;
+    while v7 and v6 and v6.Character and v6.Character:FindFirstChild("HumanoidRootPart") do
+        local l_HumanoidRootPart_0 = v6.Character.HumanoidRootPart;
+        local l_BodyEffects_0 = v6.Character:FindFirstChild("BodyEffects");
+        local v46 = l_BodyEffects_0 and l_BodyEffects_0:FindFirstChild("K.O") and l_BodyEffects_0["K.O"].Value;
+        local v47 = l_BodyEffects_0 and l_BodyEffects_0:FindFirstChild("Dead") and l_BodyEffects_0.Dead.Value;
+        local l_GRABBING_CONSTRAINT_0 = v6.Character:FindFirstChild("GRABBING_CONSTRAINT");
+        v34();
+        if v47 then
+            v7 = false;
+            startTeleport();
+            repeat
+                task.wait(0.01);
+            until v6.Character and v6.Character:FindFirstChild("BodyEffects") and not v6.Character.BodyEffects.Dead.Value;
+            stopTeleport();
+            v7 = true;
+            v43(true);
+        elseif v46 then
+            local l_UpperTorso_0 = v6.Character:FindFirstChild("UpperTorso");
+            if l_UpperTorso_0 then
+                l_LocalPlayer_0.Character.HumanoidRootPart.CFrame = CFrame.new(l_UpperTorso_0.Position + Vector3.new(0, 3, 0));
+                l_ReplicatedStorage_0.MainEvent:FireServer("Stomp");
+                l_RunService_0.RenderStepped:Wait();
+            end;
+        else
+            local v50 = Vector3.new(math.random(-90, 90), math.random(-90, 90), math.random(90, 90));
+            l_LocalPlayer_0.Character.HumanoidRootPart.CFrame = CFrame.new(l_HumanoidRootPart_0.Position + v50);
+            l_CurrentCamera_0.CameraSubject = v6.Character:WaitForChild("Humanoid");
+            local l_Head_1 = v6.Character:FindFirstChild("Head");
+            if l_Head_1 then
+                local l_Velocity_0 = l_Head_1.Velocity;
+                local v53 = l_Head_1.Position + l_Velocity_0 * 0.2;
+                local l_Character_0 = l_LocalPlayer_0.Character;
+                local v55 = l_Character_0 and l_Character_0:FindFirstChildOfClass("Tool");
+                if v55 and v55:FindFirstChild("Handle") and not l_GRABBING_CONSTRAINT_0 then
+                    l_ReplicatedStorage_0.MainEvent:FireServer("ShootGun", v55.Handle, l_Character_0.HumanoidRootPart.Position - Vector3.new(0, 10, 0), v53 - Vector3.new(0, 25, 0), l_Head_1, (v53 - l_Character_0.HumanoidRootPart.Position).unit);
+                end;
+            end;
+        end;
+        task.wait(0.01);
+    end;
+end;
+local function v57() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_LocalPlayer_0 (ref), v8 (ref)
+    if l_LocalPlayer_0.Character and l_LocalPlayer_0.Character:FindFirstChild("HumanoidRootPart") then
+        v8 = l_LocalPlayer_0.Character.HumanoidRootPart.Position;
+    end;
+end;
+local function v59() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_LocalPlayer_0 (ref), v13 (ref), v6 (ref), v57 (ref), v56 (ref)
+    repeat
+        task.wait(0.1);
+    until l_LocalPlayer_0.Character and l_LocalPlayer_0.Character:FindFirstChild("HumanoidRootPart");
+    if v13 then
+        local l_FirstChild_3 = l_LocalPlayer_0.Backpack:FindFirstChild(v13);
+        if l_FirstChild_3 then
+            l_FirstChild_3.Parent = l_LocalPlayer_0.Character;
+        end;
+    end;
+    if v6 then
+        v57();
+        task.spawn(v56);
+    end;
+end;
+l_LocalPlayer_0.CharacterAdded:Connect(v59);
+local function v62(v60) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v6 (ref), v17 (ref), v57 (ref), v56 (ref), v7 (ref), l_CurrentCamera_0 (ref), l_LocalPlayer_0 (ref), v8 (ref)
+    if string.sub(v60, 1, 10) == ".autokill " then
+        local v61 = string.sub(v60, 11);
+        v6 = v17(v61);
+        if v6 then
+            v57();
+            task.spawn(v56);
+        end;
+    elseif v60 == "stop!" then
+        stopTeleport();
+        v7 = false;
+        v6 = nil;
+        l_CurrentCamera_0.CameraType = Enum.CameraType.Custom;
+        l_CurrentCamera_0.CameraSubject = l_LocalPlayer_0.Character.Humanoid;
+        if v8 then
+            l_LocalPlayer_0.Character.HumanoidRootPart.CFrame = CFrame.new(v8);
+        end;
+    end;
+end;
+l_LocalPlayer_0.Chatted:Connect(v62);
