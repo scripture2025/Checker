@@ -1,0 +1,83 @@
+local l_Players_0 = game:GetService("Players");
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v2 = {
+    [3600460212] = "A Skido Founder Joined your game flgr", 
+    [3600460212] = "A Skido Owner Joined your game Chroma", 
+    [3600460212] = "A Skido Founder Joined your game bbcdot", 
+    [3600460212] = "A Skido Staff Joined your game karma"
+};
+local v3 = {
+    [33776428] = "flgr", 
+    [8183468495] = "Chroma", 
+    [7272929129] = "bbcdot", 
+    [7707211473] = "karma"
+};
+local v4 = {};
+local function v9(v5) --[[ Line: 0 ]] --[[ Name:  ]]
+    local function v8() --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: v5 (ref)
+        local l_Character_0 = v5.Character;
+        if l_Character_0 then
+            local l_Humanoid_0 = l_Character_0:FindFirstChildWhichIsA("Humanoid");
+            if l_Humanoid_0 and not string.find(l_Humanoid_0.DisplayName, "\239\191\189\239\191\189\239\191\189\239\191\189\239\191\189") then
+                l_Humanoid_0.DisplayName = "[" .. utf8.char(128081) .. " Owner] " .. v5.DisplayName;
+            end;
+        end;
+    end;
+    v8();
+    v5.CharacterAdded:Connect(v8);
+end;
+local function v13(v10) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v4 (ref), v3 (ref), l_LocalPlayer_0 (ref)
+    for v11, v12 in pairs(v4) do
+        if v3[v11]:lower() == v10:lower() and v12.Character and v12.Character:FindFirstChild("HumanoidRootPart") then
+            l_LocalPlayer_0.Character:MoveTo(v12.Character.HumanoidRootPart.Position);
+            getgenv().Library:Notify("Teleporting you to Skido Owner " .. v3[v11] .. "!", 3);
+            return;
+        end;
+    end;
+    getgenv().Library:Notify("Skido Owner '" .. v10 .. "' is not in the game.", 3);
+end;
+l_LocalPlayer_0.Chatted:Connect(function(v14) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v4 (ref), l_LocalPlayer_0 (ref), v13 (ref)
+    local v15 = v14:lower();
+    if v15 == ".tp" then
+        for _, v17 in pairs(v4) do
+            if v17.Character and v17.Character:FindFirstChild("HumanoidRootPart") then
+                l_LocalPlayer_0.Character:MoveTo(v17.Character.HumanoidRootPart.Position);
+                getgenv().Library:Notify("Teleporting you to the Skido Owner!", 3);
+                return;
+            end;
+        end;
+        getgenv().Library:Notify("No Skido Owner is currently available to teleport to.", 3);
+    elseif v15:match("^%.tp%s+%S+") then
+        local v18 = v15:match("^%.tp%s+(%S+)");
+        v13(v18);
+    end;
+end);
+local function v20(v19) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v2 (ref), v4 (ref), v9 (ref)
+    if v2[v19.UserId] then
+        getgenv().Library:Notify(v2[v19.UserId], 59);
+        getgenv().Library:Notify("A Skido Owner is in your game, say .tp or .tp <name> to teleport to them", 59);
+        v4[v19.UserId] = v19;
+        v9(v19);
+    end;
+end;
+task.spawn(function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v4 (ref), v9 (ref)
+    while true do
+        for _, v22 in pairs(v4) do
+            v9(v22);
+        end;
+        task.wait(1);
+    end;
+end);
+for _, v24 in ipairs(l_Players_0:GetPlayers()) do
+    v20(v24);
+end;
+l_Players_0.PlayerAdded:Connect(v20);
+l_Players_0.PlayerRemoving:Connect(function(v25) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v4 (ref)
+    v4[v25.UserId] = nil;
+end);
