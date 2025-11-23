@@ -1,0 +1,240 @@
+local v0 = false;
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v0 (ref)
+    v0 = false;
+end);
+getgenv().fireclickdetector = function(v1, _, _) --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v0 (ref)
+    if not v0 then
+        v0 = true;
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, 101, false, game:GetService("Players").LocalPlayer);
+    end;
+    local l_Character_0 = game:GetService("Players").LocalPlayer.Character;
+    if l_Character_0 and l_Character_0:FindFirstChildOfClass("Tool") then
+        l_Character_0.Humanoid:UnequipTools();
+    end;
+    local v5 = v1:FindFirstChild("ClickDetector") or v1;
+    local l_Parent_0 = v5.Parent;
+    local l_Part_0 = Instance.new("Part");
+    l_Part_0.Transparency = 1;
+    l_Part_0.Size = Vector3.new(30, 30, 30);
+    l_Part_0.Anchored = true;
+    l_Part_0.CanCollide = false;
+    l_Part_0.Parent = workspace;
+    v5.Parent = l_Part_0;
+    v5.MaxActivationDistance = math.huge;
+    local v8 = nil;
+    v8 = game:GetService("RunService").Heartbeat:Connect(function() --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: l_Part_0 (ref)
+        l_Part_0.CFrame = workspace.Camera.CFrame * CFrame.new(0, 0, -20) * CFrame.new(workspace.Camera.CFrame.LookVector);
+        game:GetService("VirtualUser"):ClickButton1(Vector2.new(20, 20), workspace:FindFirstChildOfClass("Camera").CFrame);
+    end);
+    local function v9() --[[ Line: 0 ]] --[[ Name:  ]]
+        -- upvalues: v8 (ref), v5 (ref), l_Parent_0 (ref), l_Part_0 (ref), v0 (ref)
+        if v8 then
+            v8:Disconnect();
+        end;
+        v5.Parent = l_Parent_0;
+        if l_Part_0 then
+            l_Part_0:Destroy();
+        end;
+        v0 = false;
+    end;
+    v5.MouseClick:Once(v9);
+    task.delay(3, v9);
+end;
+local l_LocalPlayer_0 = game.Players.LocalPlayer;
+local v11 = http_request or request or syn and syn.request;
+local l_Currency_0 = l_LocalPlayer_0:WaitForChild("DataFolder"):WaitForChild("Currency");
+local l_Value_0 = l_Currency_0.Value;
+local v14 = 0;
+local v15 = 0;
+local function v26() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_LocalPlayer_0 (ref), l_Currency_0 (ref), l_Value_0 (ref), v14 (ref), v15 (ref), v11 (ref)
+    if l_LocalPlayer_0.PlayerGui:FindFirstChild("PersistentMoneyGUI") then
+        return;
+    else
+        local l_ScreenGui_0 = Instance.new("ScreenGui");
+        l_ScreenGui_0.Name = "PersistentMoneyGUI";
+        l_ScreenGui_0.Parent = l_LocalPlayer_0.PlayerGui;
+        l_ScreenGui_0.ResetOnSpawn = false;
+        local l_Frame_0 = Instance.new("Frame");
+        l_Frame_0.Parent = l_ScreenGui_0;
+        l_Frame_0.Size = UDim2.new(0, 200, 0, 50);
+        l_Frame_0.Position = UDim2.new(0.5, -100, 0, 20);
+        l_Frame_0.BackgroundColor3 = Color3.fromRGB(50, 50, 50);
+        l_Frame_0.BorderSizePixel = 0;
+        l_Frame_0.Draggable = true;
+        local l_TextLabel_0 = Instance.new("TextLabel");
+        l_TextLabel_0.Parent = l_Frame_0;
+        l_TextLabel_0.Size = UDim2.new(1, 0, 1, 0);
+        l_TextLabel_0.TextSize = 20;
+        l_TextLabel_0.TextColor3 = Color3.fromRGB(255, 255, 255);
+        l_TextLabel_0.BackgroundTransparency = 1;
+        l_TextLabel_0.Text = "Money Added: 0";
+        local function v20(v19) --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: l_TextLabel_0 (ref)
+            l_TextLabel_0.Text = "Money Added: " .. v19;
+        end;
+        (function() --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: l_Currency_0 (ref), l_Value_0 (ref), v14 (ref), v20 (ref)
+            game:GetService("RunService").Heartbeat:Connect(function() --[[ Line: 0 ]] --[[ Name:  ]]
+                -- upvalues: l_Currency_0 (ref), l_Value_0 (ref), v14 (ref), v20 (ref)
+                local l_Value_1 = l_Currency_0.Value;
+                local v22 = l_Value_1 - l_Value_0;
+                if v22 > 0 then
+                    v14 = v14 + v22;
+                    v20(v14);
+                    l_Value_0 = l_Value_1;
+                end;
+            end);
+        end)();
+        coroutine.wrap(function() --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: v14 (ref), v15 (ref), v11 (ref)
+            while true do
+                task.wait(getgenv().timewaittosendwebhookmessage or 30);
+                local v23 = v14 - v15;
+                if v23 > 0 and v11 then
+                    local v24 = {
+                        content = "**Money Earned Update**", 
+                        embeds = {
+                            {
+                                title = "\239\191\189\239\191\189\239\191\189\239\191\189\239\191\189 Money Earned", 
+                                description = "You have earned **" .. tostring(v23) .. "** cash in the last " .. tostring(getgenv().timewaittosendwebhookmessage) .. " seconds.", 
+                                color = 65280, 
+                                timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+                            }
+                        }
+                    };
+                    do
+                        local l_v24_0 = v24;
+                        pcall(function() --[[ Line: 0 ]] --[[ Name:  ]]
+                            -- upvalues: v11 (ref), l_v24_0 (ref)
+                            v11({
+                                Url = getgenv().Discordwebhook, 
+                                Method = "POST", 
+                                Headers = {
+                                    ["Content-Type"] = "application/json"
+                                }, 
+                                Body = game:GetService("HttpService"):JSONEncode(l_v24_0)
+                            });
+                        end);
+                        v15 = v14;
+                    end;
+                end;
+            end;
+        end)();
+        return;
+    end;
+end;
+local function v28() --[[ Line: 0 ]] --[[ Name:  ]]
+    if getgenv().Camerainvoid then
+        local l_CurrentCamera_0 = workspace.CurrentCamera;
+        l_CurrentCamera_0.CameraType = Enum.CameraType.Scriptable;
+        l_CurrentCamera_0.CFrame = CFrame.new(Vector3.new(9999, 99998, 9999));
+    end;
+end;
+l_LocalPlayer_0.CharacterAdded:Connect(function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: v28 (ref)
+    task.wait(1);
+    v28();
+end);
+v28();
+local l_l_LocalPlayer_0_0 = l_LocalPlayer_0;
+local v30 = 0.3;
+local v31 = false;
+local v32 = nil;
+local v33 = false;
+local v34 = false;
+local v35 = false;
+coroutine.wrap(function() --[[ Line: 0 ]] --[[ Name:  ]]
+    -- upvalues: l_l_LocalPlayer_0_0 (ref), v32 (ref), v33 (ref), v30 (ref), v31 (ref), v34 (ref), v35 (ref)
+    while task.wait() do
+        pcall(function() --[[ Line: 0 ]] --[[ Name:  ]]
+            -- upvalues: l_l_LocalPlayer_0_0 (ref)
+            if l_l_LocalPlayer_0_0.Character and l_l_LocalPlayer_0_0.Character:FindFirstChild("Humanoid") and l_l_LocalPlayer_0_0.Character.Humanoid.Sit then
+                l_l_LocalPlayer_0_0.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping);
+            end;
+        end);
+        if l_l_LocalPlayer_0_0.Character:FindFirstChild("FULLY_LOADED_CHAR") then
+            local l_BodyEffects_0 = l_l_LocalPlayer_0_0.Character:FindFirstChild("BodyEffects");
+            if l_BodyEffects_0 and l_BodyEffects_0:FindFirstChild("K.O") and l_BodyEffects_0["K.O"].Value == true then
+                v32 = nil;
+                v33 = false;
+                for _, v38 in pairs(l_l_LocalPlayer_0_0.Character:GetChildren()) do
+                    if v38:IsA("MeshPart") or v38:IsA("Part") or v38:IsA("BasePart") then
+                        v38:Remove();
+                    end;
+                end;
+            elseif v32 then
+                if v32:FindFirstChild("Humanoid") and v32.Humanoid.Health < 1 then
+                    task.wait(v30 / 1);
+                    v33 = false;
+                    if not v31 then
+                        v31 = true;
+                        local v39 = 0;
+                        local v40 = 6;
+                        repeat
+                            task.wait(v30);
+                            for _, v42 in ipairs(workspace.Ignored.Drop:GetChildren()) do
+                                if (v42.Position - l_l_LocalPlayer_0_0.Character.HumanoidRootPart.Position).Magnitude < 14.5 and v42:FindFirstChild("ClickDetector") then
+                                    local l_Tool_0 = l_l_LocalPlayer_0_0.Character:FindFirstChildWhichIsA("Tool");
+                                    if l_Tool_0 then
+                                        l_Tool_0.Parent = l_l_LocalPlayer_0_0.Backpack;
+                                    end;
+                                    fireclickdetector(v42.ClickDetector, 0);
+                                    v33 = true;
+                                end;
+                            end;
+                            v39 = v39 + 1;
+                        until v33 or v40 <= v39;
+                        if not v33 then
+                            v32 = nil;
+                            v34 = false;
+                            v35 = false;
+                        end;
+                        v31 = false;
+                    end;
+                elseif v32.Humanoid.Health > 1 then
+                    if not v35 then
+                        v35 = true;
+                        for _, v45 in pairs(v32:GetDescendants()) do
+                            do
+                                local l_v45_0 = v45;
+                                if l_v45_0:IsA("Part") or l_v45_0:IsA("MeshPart") or l_v45_0:IsA("BasePart") then
+                                    pcall(function() --[[ Line: 0 ]] --[[ Name:  ]]
+                                        -- upvalues: l_v45_0 (ref)
+                                        l_v45_0.CanCollide = false;
+                                    end);
+                                end;
+                            end;
+                        end;
+                    end;
+                    if l_l_LocalPlayer_0_0.Character:FindFirstChild("HumanoidRootPart") then
+                        l_l_LocalPlayer_0_0.Character.HumanoidRootPart.CFrame = v32.Open.CFrame * CFrame.new(0, 0, 1.9);
+                    end;
+                    local l_Combat_0 = l_l_LocalPlayer_0_0.Backpack:FindFirstChild("Combat");
+                    if l_Combat_0 then
+                        l_Combat_0.Parent = l_l_LocalPlayer_0_0.Character;
+                    elseif not l_BodyEffects_0.Attacking.Value then
+                        local l_Combat_1 = l_l_LocalPlayer_0_0.Character:FindFirstChild("Combat");
+                        if l_Combat_1 then
+                            l_Combat_1:Activate();
+                        end;
+                    end;
+                end;
+            else
+                if l_l_LocalPlayer_0_0.Character:FindFirstChild("HumanoidRootPart") then
+                    l_l_LocalPlayer_0_0.Character.HumanoidRootPart.CFrame = CFrame.new(9999, 9999, 9999);
+                end;
+                for _, v50 in pairs(workspace.Cashiers:GetChildren()) do
+                    if v50.Name:match("CA%$HIER") and not v50.Name:match("VAULT") and v50:FindFirstChild("Humanoid") and v50.Humanoid.Health > 25 and (v50.Head.Position - Vector3.new(-623.998474, 24.9000168, -285.062225)).Magnitude > 8 then
+                        v32 = v50;
+                        break;
+                    end;
+                end;
+            end;
+        end;
+    end;
+end)();
+v26();
