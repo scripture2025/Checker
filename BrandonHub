@@ -1,4 +1,5 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLag"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/Maximum"))()
 
 local Players = game:GetService("Players")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
