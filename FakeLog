@@ -229,7 +229,7 @@ fakeButton.MouseButton1Click:Connect(function()
     local messages = {
         username .. " - Grabbing Data…",
         "Grabbing LAX DATA…",
-        username .. " : PROTOCOL GRABBED USA.",
+        username .. " : INTERNET GRABBED USA.",
         username .. "'s Data Has Been Successfully Stolen."
     }
     
