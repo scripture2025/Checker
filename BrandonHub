@@ -1,4 +1,21 @@
--- brandon hub v7.5 setup
-loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/Admin"))()
-task.wait(1)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
+local Players = game:GetService("Players")
+local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
+local executor = Players.LocalPlayer
+
+local function isAdmin(player)
+    if not player then return false end
+    for _, name in ipairs(AdminNames) do
+        if player.Name == name then
+            return true
+        end
+    end
+    return false
+end
+
+if isAdmin(executor) then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
+else
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/Admin"))()
+    task.wait(1)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
+end
