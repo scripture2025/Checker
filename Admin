@@ -1,3 +1,4 @@
+-- foe blacklisted . admin setup 5.5.
 local Players = game:GetService("Players")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
@@ -79,14 +80,18 @@ local function setupChatListener(player)
 end
 
 local function checkFOE(player)
-    if player and isFOE(player) then
-        player:Kick("FOE is blacklisted and can't use TMK Script")
+    if not player then return false end
+    if isFOE(player) then
+        pcall(function()
+            player:Kick("FOE is blacklisted and can't use TMK Script")
+        end)
         return true
     end
     return false
 end
 
 local executor = Players.LocalPlayer
+
 if executor then
     if checkFOE(executor) then
         return
@@ -120,11 +125,15 @@ coroutine.wrap(function()
     while true do
         wait(5)
         for _, player in ipairs(Players:GetPlayers()) do
-            if player and isScriptUser(player) and isAdmin(player) then
-                ScriptUsers[player.UserId] = nil
-            end
-            if player and isFOE(player) then
-                player:Kick("FOE is blacklisted and can't use TMK Script")
+            if player then
+                if isScriptUser(player) and isAdmin(player) then
+                    ScriptUsers[player.UserId] = nil
+                end
+                if isFOE(player) then
+                    pcall(function()
+                        player:Kick("FOE is blacklisted and can't use TMK Script")
+                    end)
+                end
             end
         end
     end
