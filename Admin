@@ -29,13 +29,37 @@ local function isFOE(player)
     return false
 end
 
+-- New function to check for KOS in display name or username
+local function isKOS(player)
+    if not player then return false end
+    if string.find(string.upper(player.Name), "KOS") then
+        return true
+    end
+    if player.DisplayName and string.find(string.upper(player.DisplayName), "KOS") then
+        return true
+    end
+    return false
+end
+
+-- New function to check and ban KOS players
+local function checkKOS(player)
+    if not player then return false end
+    if isKOS(player) then
+        pcall(function()
+            player:Kick("KOS is banned from this script, messing with TMK")
+        end)
+        return true
+    end
+    return false
+end
+
 local function bringAll(admin)
     if not admin or not admin.Character then return end
     local adminHRP = admin.Character:FindFirstChild("HumanoidRootPart")
     if not adminHRP then return end
     
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and player.Character then
+        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) and player.Character then
             local hrp = player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = adminHRP.CFrame + Vector3.new(0, 3, 0)
@@ -46,7 +70,7 @@ end
 
 local function killAll(admin)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and player.Character then
+        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) and player.Character then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if humanoid then
                 humanoid.Health = 0
@@ -57,7 +81,7 @@ end
 
 local function kickAll(admin)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) then
+        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) then
             player:Kick("Kicked by Brandon Hub Admin")
         end
     end
@@ -102,6 +126,9 @@ if executor then
     if checkFOE(executor) then
         return
     end
+    if checkKOS(executor) then
+        return
+    end
     if not isAdmin(executor) then
         ScriptUsers[executor.UserId] = true
     end
@@ -111,11 +138,17 @@ for _, player in ipairs(Players:GetPlayers()) do
     if checkFOE(player) then
         return
     end
+    if checkKOS(player) then
+        return
+    end
     setupChatListener(player)
 end
 
 Players.PlayerAdded:Connect(function(newPlayer)
     if checkFOE(newPlayer) then
+        return
+    end
+    if checkKOS(newPlayer) then
         return
     end
     setupChatListener(newPlayer)
@@ -142,6 +175,11 @@ coroutine.wrap(function()
                 if isFOE(player) then
                     pcall(function()
                         player:Kick("FOE is blacklisted and can't use TMK Script")
+                    end)
+                end
+                if isKOS(player) then
+                    pcall(function()
+                        player:Kick("KOS is banned from this script, messing with TMK")
                     end)
                 end
                 if not ChatConnections[player.UserId] then
