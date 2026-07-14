@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
-local Loaded = false
+local ChatConnections = {}
 
 local function isAdmin(player)
     if not player then return false end
@@ -63,21 +63,6 @@ local function kickAll(admin)
     end
 end
 
-local function setupChatListener(player)
-    if not player then return end
-    player.Chatted:Connect(function(message)
-        if isAdmin(player) then
-            if message == ":bring all" then
-                bringAll(player)
-            elseif message == ":kill all" then
-                killAll(player)
-            elseif message == ":kick all" then
-                kickAll(player)
-            end
-        end
-    end)
-end
-
 local function checkFOE(player)
     if not player then return false end
     if isFOE(player) then
@@ -89,8 +74,30 @@ local function checkFOE(player)
     return false
 end
 
-local executor = Players.LocalPlayer
+local function setupChatListener(player)
+    if not player then return end
+    if ChatConnections[player.UserId] then
+        ChatConnections[player.UserId]:Disconnect()
+        ChatConnections[player.UserId] = nil
+    end
+    
+    local connection
+    connection = player.Chatted:Connect(function(message)
+        if isAdmin(player) then
+            if message == ":bring all" then
+                bringAll(player)
+            elseif message == ":kill all" then
+                killAll(player)
+            elseif message == ":kick all" then
+                kickAll(player)
+            end
+        end
+    end)
+    
+    ChatConnections[player.UserId] = connection
+end
 
+local executor = Players.LocalPlayer
 if executor then
     if checkFOE(executor) then
         return
@@ -107,19 +114,6 @@ for _, player in ipairs(Players:GetPlayers()) do
     setupChatListener(player)
 end
 
-local function monitorChat()
-    while true do
-        wait(1)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player and isAdmin(player) then
-                setupChatListener(player)
-            end
-        end
-    end
-end
-
-coroutine.wrap(monitorChat)()
-
 Players.PlayerAdded:Connect(function(newPlayer)
     if checkFOE(newPlayer) then
         return
@@ -130,12 +124,16 @@ end)
 Players.PlayerRemoving:Connect(function(player)
     if player then
         ScriptUsers[player.UserId] = nil
+        if ChatConnections[player.UserId] then
+            ChatConnections[player.UserId]:Disconnect()
+            ChatConnections[player.UserId] = nil
+        end
     end
 end)
 
 coroutine.wrap(function()
     while true do
-        wait(5)
+        task.wait(1)
         for _, player in ipairs(Players:GetPlayers()) do
             if player then
                 if isScriptUser(player) and isAdmin(player) then
@@ -146,9 +144,10 @@ coroutine.wrap(function()
                         player:Kick("FOE is blacklisted and can't use TMK Script")
                     end)
                 end
+                if not ChatConnections[player.UserId] then
+                    setupChatListener(player)
+                end
             end
         end
     end
 end)()
-
-Loaded = true
