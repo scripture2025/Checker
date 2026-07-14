@@ -1,3 +1,4 @@
+-- bh hub admin
 local Players = game:GetService("Players")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
