@@ -228,13 +228,13 @@ fakeButton.MouseButton1Click:Connect(function()
     
     local messages = {
         username .. " - Grabbing Data…",
-        "Cracking IP Address…",
-        username .. " : IP 8.127.05 OS WIN!",
+        "Cracking LAX IP…",
+        username .. " : IP 36.0.089 OS!",
         username .. "'s Data Has Been Successfully Stolen."
     }
     
     for i, msg in ipairs(messages) do
-        task.wait(0.8)
+        task.wait(1.2)
         SendMessage(msg)
         statusLabel.Text = "📤 " .. msg
     end
