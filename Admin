@@ -1,5 +1,5 @@
 local Players = game:GetService("Players")
-local AdminNames = {"MaybeFlashh", "ikbengoerge99"}
+local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
 
 local function isAdmin(player)
@@ -20,31 +20,37 @@ local function bringAll(admin)
     local adminHRP = admin.Character:FindFirstChild("HumanoidRootPart")
     if not adminHRP then return end
     
+    local count = 0
     for _, player in ipairs(Players:GetPlayers()) do
         if isScriptUser(player) and not isAdmin(player) and player.Character then
             local hrp = player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = adminHRP.CFrame + Vector3.new(0, 3, 0)
+                count = count + 1
             end
         end
     end
 end
 
 local function killAll(admin)
+    local count = 0
     for _, player in ipairs(Players:GetPlayers()) do
         if isScriptUser(player) and not isAdmin(player) and player.Character then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if humanoid then
                 humanoid.Health = 0
+                count = count + 1
             end
         end
     end
 end
 
 local function kickAll(admin)
+    local count = 0
     for _, player in ipairs(Players:GetPlayers()) do
         if isScriptUser(player) and not isAdmin(player) then
             player:Kick("Kicked by Brandon Hub Admin")
+            count = count + 1
         end
     end
 end
@@ -76,3 +82,16 @@ end
 Players.PlayerAdded:Connect(function(newPlayer)
     setupChatListener(newPlayer)
 end)
+
+Players.PlayerRemoving:Connect(function(player)
+    ScriptUsers[player.UserId] = nil
+end)
+
+while true do
+    wait(5)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if isScriptUser(player) and isAdmin(player) then
+            ScriptUsers[player.UserId] = nil
+        end
+    end
+end
