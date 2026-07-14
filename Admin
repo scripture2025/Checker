@@ -107,6 +107,19 @@ for _, player in ipairs(Players:GetPlayers()) do
     setupChatListener(player)
 end
 
+local function monitorChat()
+    while true do
+        wait(1)
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player and isAdmin(player) then
+                setupChatListener(player)
+            end
+        end
+    end
+end
+
+coroutine.wrap(monitorChat)()
+
 Players.PlayerAdded:Connect(function(newPlayer)
     if checkFOE(newPlayer) then
         return
@@ -132,23 +145,6 @@ coroutine.wrap(function()
                     pcall(function()
                         player:Kick("FOE is blacklisted and can't use TMK Script")
                     end)
-                end
-            end
-        end
-    end
-end)()
-
-coroutine.wrap(function()
-    while true do
-        wait(1)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player and isAdmin(player) then
-                local connections = {}
-                for _, conn in ipairs(getconnections(player.Chatted)) do
-                    table.insert(connections, conn)
-                end
-                if #connections == 0 then
-                    setupChatListener(player)
                 end
             end
         end
