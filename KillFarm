@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BrandonKillFarmV2"
+screenGui.Name = "BrandonKillFarm"
 screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
@@ -227,20 +227,20 @@ whitelistLayout.SortOrder = Enum.SortOrder.Name
 whitelistLayout.Padding = UDim.new(0, 2)
 whitelistLayout.Parent = whitelistScroll
 
-local hugToggle = Instance.new("TextButton")
-hugToggle.Name = "HugToggle"
-hugToggle.Size = UDim2.new(0.9, 0, 0, 20)
-hugToggle.Position = UDim2.new(0.05, 0, 0.60, 0)
-hugToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-hugToggle.Text = "Hug Farm: OFF"
-hugToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-hugToggle.TextScaled = true
-hugToggle.Font = Enum.Font.GothamBold
-hugToggle.Parent = mainFrame
+local farmToggle = Instance.new("TextButton")
+farmToggle.Name = "FarmToggle"
+farmToggle.Size = UDim2.new(0.9, 0, 0, 20)
+farmToggle.Position = UDim2.new(0.05, 0, 0.60, 0)
+farmToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+farmToggle.Text = "Start Farming: OFF"
+farmToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+farmToggle.TextScaled = true
+farmToggle.Font = Enum.Font.GothamBold
+farmToggle.Parent = mainFrame
 
-local hugCorner = Instance.new("UICorner")
-hugCorner.CornerRadius = UDim.new(0, 8)
-hugCorner.Parent = hugToggle
+local farmCorner = Instance.new("UICorner")
+farmCorner.CornerRadius = UDim.new(0, 8)
+farmCorner.Parent = farmToggle
 
 local grabToggle = Instance.new("TextButton")
 grabToggle.Name = "GrabToggle"
@@ -283,17 +283,22 @@ statusLabel.TextScaled = true
 statusLabel.Font = Enum.Font.Gotham
 statusLabel.Parent = mainFrame
 
-local hugEnabled = false
+local farmEnabled = false
 local grabEnabled = false
 local killEnabled = false
 local currentTarget = nil
+local lockedTarget = nil
 local fightingTimer = {}
+local targetHealthHistory = {}
 
-hugToggle.MouseButton1Click:Connect(function()
-    hugEnabled = not hugEnabled
-    hugToggle.Text = "Hug Farm: " .. (hugEnabled and "ON" or "OFF")
-    hugToggle.BackgroundColor3 = hugEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
-    if not hugEnabled then currentTarget = nil end
+farmToggle.MouseButton1Click:Connect(function()
+    farmEnabled = not farmEnabled
+    farmToggle.Text = "Start Farming: " .. (farmEnabled and "ON" or "OFF")
+    farmToggle.BackgroundColor3 = farmEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+    if not farmEnabled then 
+        currentTarget = nil
+        lockedTarget = nil
+    end
 end)
 
 grabToggle.MouseButton1Click:Connect(function()
@@ -526,7 +531,80 @@ local function isPlayerFighting(player)
     return attributes["Fighting"] == true
 end
 
+local function isPlayerLosingHealth(player)
+    if not player or not player.Character or not player.Character:FindFirstChild("Humanoid") then
+        return false
+    end
+    local humanoid = player.Character.Humanoid
+    local currentHealth = humanoid.Health
+    local maxHealth = humanoid.MaxHealth
+    
+    if not targetHealthHistory[player] then
+        targetHealthHistory[player] = currentHealth
+        return false
+    end
+    
+    local previousHealth = targetHealthHistory[player]
+    targetHealthHistory[player] = currentHealth
+    
+    -- Check if health is decreasing
+    if currentHealth < previousHealth then
+        return true
+    end
+    
+    return false
+end
+
 local function findTarget()
+    if farmEnabled and lockedTarget then
+        -- Check if locked target is still valid
+        local player = lockedTarget
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            if humanoid.Health > 0 then
+                -- Check if player is whitelisted
+                local isWhitelisted = false
+                for _, wp in ipairs(whitelistedPlayers) do
+                    if wp == player then
+                        isWhitelisted = true
+                        break
+                    end
+                end
+                if not isWhitelisted then
+                    -- If fighting is ON, stay locked
+                    if isPlayerFighting(player) then
+                        fightingTimer[player] = tick()
+                        return player
+                    end
+                    
+                    -- If losing health, stay locked
+                    if isPlayerLosingHealth(player) then
+                        return player
+                    end
+                    
+                    -- If fighting is OFF and not losing health, check timer
+                    if fightingTimer[player] then
+                        if tick() - fightingTimer[player] > 2.5 then
+                            fightingTimer[player] = nil
+                            lockedTarget = nil
+                        else
+                            return player
+                        end
+                    else
+                        lockedTarget = nil
+                    end
+                else
+                    lockedTarget = nil
+                end
+            else
+                lockedTarget = nil
+            end
+        else
+            lockedTarget = nil
+        end
+    end
+    
+    -- Find new target
     local bestTarget = nil
     local currentTime = tick()
     
@@ -559,6 +637,10 @@ local function findTarget()
                 end
             end
         end
+    end
+    
+    if bestTarget then
+        lockedTarget = bestTarget
     end
     
     return bestTarget
@@ -609,7 +691,7 @@ RunService.Heartbeat:Connect(function()
         end
     end
     
-    if not hugEnabled and not grabEnabled and not killEnabled then
+    if not farmEnabled and not grabEnabled and not killEnabled then
         statusLabel.Text = "Idle - No features enabled"
         return
     end
@@ -637,11 +719,11 @@ RunService.Heartbeat:Connect(function()
         local rootPart = target.Character.HumanoidRootPart
         local targetPos = rootPart.Position
         
-        if hugEnabled then
+        if farmEnabled then
             pcall(function()
                 LocalPlayer.Character.HumanoidRootPart.CFrame = rootPart.CFrame + Vector3.new(0, 3, 0)
             end)
-            statusLabel.Text = "Hugging: " .. target.Name
+            statusLabel.Text = "Farming: " .. target.Name
         end
         
         if grabEnabled and GrabEvent then
@@ -660,7 +742,7 @@ end)
 
 local function onPlayerAdded(player)
     player:GetAttributeChangedSignal("Fighting"):Connect(function()
-        if currentTarget == player then
+        if currentTarget == player or lockedTarget == player then
             if not isPlayerFighting(player) then
                 fightingTimer[player] = tick()
             else
@@ -671,9 +753,11 @@ local function onPlayerAdded(player)
     
     player.CharacterAdded:Connect(function(character)
         character.Humanoid.Died:Connect(function()
-            if currentTarget == player then
+            if currentTarget == player or lockedTarget == player then
                 currentTarget = nil
+                lockedTarget = nil
                 fightingTimer[player] = nil
+                targetHealthHistory[player] = nil
             end
         end)
     end)
@@ -688,6 +772,7 @@ Players.PlayerAdded:Connect(onPlayerAdded)
 LocalPlayer.CharacterAdded:Connect(function(character)
     character.Humanoid.Died:Connect(function()
         currentTarget = nil
+        lockedTarget = nil
     end)
 end)
 
