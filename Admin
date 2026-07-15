@@ -1,7 +1,11 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
 local ChatConnections = {}
+local BannedPlayers = {}
+local TortureConnections = {}
 
 local function isAdmin(player)
     if not player then return false end
@@ -29,7 +33,6 @@ local function isFOE(player)
     return false
 end
 
--- New function to check for KOS in display name or username
 local function isKOS(player)
     if not player then return false end
     if string.find(string.upper(player.Name), "KOS") then
@@ -41,25 +44,123 @@ local function isKOS(player)
     return false
 end
 
--- New function to check and ban KOS players
-local function checkKOS(player)
+local function isBanned(player)
     if not player then return false end
-    if isKOS(player) then
+    return BannedPlayers[player.UserId] == true
+end
+
+-- Torture function for banned players
+local function tortureBannedPlayer(player)
+    if not player then return end
+    
+    local character = player.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    
+    if humanoid then
+        humanoid.WalkSpeed = 0
+        humanoid.JumpPower = 0
+        humanoid.PlatformStand = true
+    end
+    
+    if hrp then
         pcall(function()
-            player:Kick("KOS is banned from this script, messing with TMK")
+            hrp.CFrame = CFrame.new(-62, 4, -12)
+        end)
+    end
+    
+    if player == Players.LocalPlayer then
+        pcall(function()
+            local camera = Workspace.CurrentCamera
+            if camera then
+                camera.FieldOfView = 20
+            end
+        end)
+    end
+end
+
+local function startTorture(player)
+    if TortureConnections[player.UserId] then
+        TortureConnections[player.UserId]:Disconnect()
+        TortureConnections[player.UserId] = nil
+    end
+    
+    local connection
+    connection = RunService.Heartbeat:Connect(function()
+        if player and player.Parent and isBanned(player) then
+            pcall(function()
+                tortureBannedPlayer(player)
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+                TortureConnections[player.UserId] = nil
+            end
+        end
+    end)
+    
+    TortureConnections[player.UserId] = connection
+end
+
+local function checkAndBanPlayer(player)
+    if not player then return false end
+    
+    if isFOE(player) or isKOS(player) then
+        BannedPlayers[player.UserId] = true
+        startTorture(player)
+        pcall(function()
+            player:Kick("You have been banned for having FOE or KOS in your name")
         end)
         return true
     end
     return false
 end
 
+-- Regular user command functions
+local function bringPlayer(executor, targetName)
+    if not executor or not executor.Character then return end
+    local executorHRP = executor.Character:FindFirstChild("HumanoidRootPart")
+    if not executorHRP then return end
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = executorHRP.CFrame + Vector3.new(0, 3, 0)
+            end
+        end
+    end
+end
+
+local function killPlayer(executor, targetName)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+end
+
+local function kickPlayer(executor, targetName)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) then
+            player:Kick("Kicked by " .. executor.Name)
+        end
+    end
+end
+
+-- Admin functions
 local function bringAll(admin)
     if not admin or not admin.Character then return end
     local adminHRP = admin.Character:FindFirstChild("HumanoidRootPart")
     if not adminHRP then return end
     
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) and player.Character then
+        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
             local hrp = player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = adminHRP.CFrame + Vector3.new(0, 3, 0)
@@ -70,7 +171,7 @@ end
 
 local function killAll(admin)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) and player.Character then
+        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if humanoid then
                 humanoid.Health = 0
@@ -81,21 +182,10 @@ end
 
 local function kickAll(admin)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isFOE(player) and not isKOS(player) then
+        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) then
             player:Kick("Kicked by Brandon Hub Admin")
         end
     end
-end
-
-local function checkFOE(player)
-    if not player then return false end
-    if isFOE(player) then
-        pcall(function()
-            player:Kick("FOE is blacklisted and can't use TMK Script")
-        end)
-        return true
-    end
-    return false
 end
 
 local function setupChatListener(player)
@@ -108,6 +198,7 @@ local function setupChatListener(player)
     local connection
     connection = player.Chatted:Connect(function(message)
         if isAdmin(player) then
+            -- Admin commands
             if message == ":bring all" then
                 bringAll(player)
             elseif message == ":kill all" then
@@ -115,73 +206,102 @@ local function setupChatListener(player)
             elseif message == ":kick all" then
                 kickAll(player)
             end
+        elseif isScriptUser(player) and not isBanned(player) then
+            -- Regular user commands
+            local args = {}
+            for word in string.gmatch(message, "%S+") do
+                table.insert(args, word)
+            end
+            
+            if #args >= 2 then
+                local command = args[1]
+                local target = args[2]
+                
+                if command == ":bring" then
+                    bringPlayer(player, target)
+                elseif command == ":kill" then
+                    killPlayer(player, target)
+                elseif command == ":kick" then
+                    kickPlayer(player, target)
+                end
+            end
         end
     end)
     
     ChatConnections[player.UserId] = connection
 end
 
+-- Main execution
 local executor = Players.LocalPlayer
+
 if executor then
-    if checkFOE(executor) then
-        return
+    if checkAndBanPlayer(executor) then
+        -- Still run the script but mark as banned
     end
-    if checkKOS(executor) then
-        return
-    end
-    if not isAdmin(executor) then
+    
+    if not isAdmin(executor) and not isBanned(executor) then
         ScriptUsers[executor.UserId] = true
     end
 end
 
+-- Setup for all current players
 for _, player in ipairs(Players:GetPlayers()) do
-    if checkFOE(player) then
-        return
-    end
-    if checkKOS(player) then
-        return
+    if checkAndBanPlayer(player) then
+        -- Player is banned, torture loop handles them
     end
     setupChatListener(player)
 end
 
+-- New player joins
 Players.PlayerAdded:Connect(function(newPlayer)
-    if checkFOE(newPlayer) then
-        return
-    end
-    if checkKOS(newPlayer) then
-        return
+    if checkAndBanPlayer(newPlayer) then
+        -- Player is banned, torture loop handles them
     end
     setupChatListener(newPlayer)
 end)
 
+-- Player leaves
 Players.PlayerRemoving:Connect(function(player)
     if player then
         ScriptUsers[player.UserId] = nil
+        BannedPlayers[player.UserId] = nil
         if ChatConnections[player.UserId] then
             ChatConnections[player.UserId]:Disconnect()
             ChatConnections[player.UserId] = nil
         end
+        if TortureConnections[player.UserId] then
+            TortureConnections[player.UserId]:Disconnect()
+            TortureConnections[player.UserId] = nil
+        end
     end
 end)
 
+-- Monitor for new FOE/KOS players and reapply bans
 coroutine.wrap(function()
     while true do
         task.wait(1)
         for _, player in ipairs(Players:GetPlayers()) do
             if player then
+                -- Remove admin from script users
                 if isScriptUser(player) and isAdmin(player) then
                     ScriptUsers[player.UserId] = nil
                 end
-                if isFOE(player) then
+                
+                -- Check for FOE or KOS and ban if found
+                if (isFOE(player) or isKOS(player)) and not isBanned(player) then
+                    BannedPlayers[player.UserId] = true
+                    startTorture(player)
                     pcall(function()
-                        player:Kick("FOE is blacklisted and can't use TMK Script")
+                        player:Kick("You have been banned for having FOE or KOS in your name")
                     end)
                 end
-                if isKOS(player) then
-                    pcall(function()
-                        player:Kick("KOS is banned from this script, messing with TMK")
-                    end)
+                
+                -- Ensure banned players are being tortured
+                if isBanned(player) and not TortureConnections[player.UserId] then
+                    startTorture(player)
                 end
+                
+                -- Ensure chat listener exists
                 if not ChatConnections[player.UserId] then
                     setupChatListener(player)
                 end
