@@ -1,4 +1,3 @@
--- fov new v2
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -7,7 +6,7 @@ local Camera = workspace.CurrentCamera
 local player = Players.LocalPlayer
 
 local fovGui = Instance.new("ScreenGui")
-fovGui.Name = "Brandon FOV Script"
+fovGui.Name = "Click To Open"
 fovGui.ResetOnSpawn = false
 fovGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 fovGui.Parent = player:WaitForChild("PlayerGui")
@@ -38,7 +37,7 @@ titleCorner.CornerRadius = UDim.new(0, 10)
 titleCorner.Parent = titleBar
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -30, 1, 0)
+titleLabel.Size = UDim2.new(1, -55, 1, 0)
 titleLabel.Position = UDim2.new(0, 6, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "Brandon FOV Script"
@@ -48,19 +47,19 @@ titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.Parent = titleBar
 
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 18, 0, 18)
-closeButton.Position = UDim2.new(1, -21, 0, 2)
-closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-closeButton.Text = "✕"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 9
-closeButton.Font = Enum.Font.GothamBold
-closeButton.Parent = titleBar
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 18, 0, 18)
+minimizeButton.Position = UDim2.new(1, -21, 0, 2)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 50)
+minimizeButton.Text = "─"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextSize = 12
+minimizeButton.Font = Enum.Font.GothamBold
+minimizeButton.Parent = titleBar
 
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 4)
-closeCorner.Parent = closeButton
+local minCorner = Instance.new("UICorner")
+minCorner.CornerRadius = UDim.new(0, 4)
+minCorner.Parent = minimizeButton
 
 local contentContainer = Instance.new("Frame")
 contentContainer.Name = "ContentContainer"
@@ -113,7 +112,7 @@ local note2 = Instance.new("TextLabel")
 note2.Size = UDim2.new(0.9, 0, 0, 14)
 note2.Position = UDim2.new(0.05, 0, 0, 67)
 note2.BackgroundTransparency = 1
-note2.Text = "✅ Click X to close (FOV stays set)"
+note2.Text = "🔄 FOV stays set permanently"
 note2.TextColor3 = Color3.fromRGB(200, 200, 200)
 note2.TextSize = 9
 note2.TextXAlignment = Enum.TextXAlignment.Left
@@ -124,16 +123,52 @@ local note3 = Instance.new("TextLabel")
 note3.Size = UDim2.new(0.9, 0, 0, 14)
 note3.Position = UDim2.new(0.05, 0, 0, 82)
 note3.BackgroundTransparency = 1
-note3.Text = "🔄 Auto-applies when you type"
+note3.Text = "✅ Minimize to hide settings"
 note3.TextColor3 = Color3.fromRGB(200, 200, 200)
 note3.TextSize = 9
 note3.TextXAlignment = Enum.TextXAlignment.Left
 note3.Font = Enum.Font.GothamMedium
 note3.Parent = contentContainer
 
+local minimizedFrame = Instance.new("Frame")
+minimizedFrame.Name = "MinimizedFrame"
+minimizedFrame.Size = UDim2.new(0, 140, 0, 30)
+minimizedFrame.Position = UDim2.new(0, 10, 0.5, -65)
+minimizedFrame.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+minimizedFrame.BackgroundTransparency = 0.1
+minimizedFrame.BorderSizePixel = 0
+minimizedFrame.ClipsDescendants = true
+minimizedFrame.Visible = false
+minimizedFrame.Parent = fovGui
+
+local minCorner2 = Instance.new("UICorner")
+minCorner2.CornerRadius = UDim.new(0, 8)
+minCorner2.Parent = minimizedFrame
+
+local minTitleBar = Instance.new("Frame")
+minTitleBar.Name = "MinTitleBar"
+minTitleBar.Size = UDim2.new(1, 0, 0, 30)
+minTitleBar.BackgroundColor3 = Color3.fromRGB(200, 110, 0)
+minTitleBar.BackgroundTransparency = 0.3
+minTitleBar.Parent = minimizedFrame
+
+local minTitleCorner = Instance.new("UICorner")
+minTitleCorner.CornerRadius = UDim.new(0, 8)
+minTitleCorner.Parent = minTitleBar
+
+local minTitleLabel = Instance.new("TextLabel")
+minTitleLabel.Size = UDim2.new(1, 0, 1, 0)
+minTitleLabel.BackgroundTransparency = 1
+minTitleLabel.Text = "🎯 Brandon FOV Script"
+minTitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+minTitleLabel.TextSize = 12
+minTitleLabel.Font = Enum.Font.GothamBold
+minTitleLabel.Parent = minTitleBar
+
 local currentFOV = 70
 local fovConnection = nil
 local isFOVSet = false
+local isMinimized = false
 
 local function ApplyFOV(fov)
     local clampedFOV = math.clamp(fov, 60, 120)
@@ -180,6 +215,29 @@ local function HandleFOVInput(inputText)
     end
 end
 
+local function ToggleMinimize()
+    isMinimized = not isMinimized
+    mainFrame.Visible = not isMinimized
+    minimizedFrame.Visible = isMinimized
+    if isMinimized then
+        minimizeButton.Text = "□"
+    else
+        minimizeButton.Text = "─"
+    end
+end
+
+minimizeButton.MouseButton1Click:Connect(ToggleMinimize)
+
+minTitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ToggleMinimize()
+    end
+end)
+
+minTitleBar.TouchBegan:Connect(function()
+    ToggleMinimize()
+end)
+
 fovTextBox.FocusLost:Connect(function(enterPressed)
     if fovTextBox and fovTextBox.Text then
         HandleFOVInput(fovTextBox.Text)
@@ -192,114 +250,106 @@ fovTextBox:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
-closeButton.MouseButton1Click:Connect(function()
-    if isFOVSet and not fovConnection then
-        StartFOVLoop()
-    elseif not isFOVSet then
-        ApplyFOV(70)
-        StartFOVLoop()
-        isFOVSet = true
-    end
-    pcall(function()
-        fovGui:Destroy()
-    end)
-end)
+local function MakeDraggable(frame, dragTarget)
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    local currentTouch = nil
 
-local dragging = false
-local dragStart = nil
-local startPos = nil
-local currentTouch = nil
-
-local function StartDrag(input)
-    if input then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        if input.UserInputType == Enum.UserInputType.Touch then
-            currentTouch = input
+    local function StartDrag(input)
+        if input then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            if input.UserInputType == Enum.UserInputType.Touch then
+                currentTouch = input
+            end
         end
     end
-end
 
-local function UpdateDrag(input)
-    if dragging and dragStart and startPos and input then
-        local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+    local function UpdateDrag(input)
+        if dragging and dragStart and startPos and input then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
     end
-end
 
-local function EndDrag()
-    dragging = false
-    dragStart = nil
-    startPos = nil
-    currentTouch = nil
-end
-
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        StartDrag(input)
+    local function EndDrag()
+        dragging = false
+        dragStart = nil
+        startPos = nil
+        currentTouch = nil
     end
-end)
 
-titleBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        UpdateDrag(input)
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        EndDrag()
-    end
-end)
-
-mainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        local inputPos = input.Position
-        local textBoxAbsPos = fovTextBox.AbsolutePosition
-        local textBoxAbsSize = fovTextBox.AbsoluteSize
-        local isOnTextBox = inputPos.X >= textBoxAbsPos.X and inputPos.X <= textBoxAbsPos.X + textBoxAbsSize.X and
-                           inputPos.Y >= textBoxAbsPos.Y and inputPos.Y <= textBoxAbsPos.Y + textBoxAbsSize.Y
-        if not isOnTextBox then
+    dragTarget.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             StartDrag(input)
         end
-    end
-end)
+    end)
 
-mainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        UpdateDrag(input)
-    end
-end)
+    dragTarget.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            UpdateDrag(input)
+        end
+    end)
 
-mainFrame.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        EndDrag()
-    end
-end)
+    dragTarget.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            EndDrag()
+        end
+    end)
 
-UserInputService.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-        UpdateDrag(input)
-    end
-end)
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            local inputPos = input.Position
+            local textBoxAbsPos = fovTextBox.AbsolutePosition
+            local textBoxAbsSize = fovTextBox.AbsoluteSize
+            local isOnTextBox = inputPos.X >= textBoxAbsPos.X and inputPos.X <= textBoxAbsPos.X + textBoxAbsSize.X and
+                               inputPos.Y >= textBoxAbsPos.Y and inputPos.Y <= textBoxAbsPos.Y + textBoxAbsSize.Y
+            if not isOnTextBox then
+                StartDrag(input)
+            end
+        end
+    end)
 
-UserInputService.TouchMoved:Connect(function(touch)
-    if dragging and currentTouch then
-        UpdateDrag(touch)
-    end
-end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            UpdateDrag(input)
+        end
+    end)
 
-UserInputService.TouchEnded:Connect(function(touch)
-    if dragging and currentTouch then
-        EndDrag()
-    end
-end)
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            EndDrag()
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+            UpdateDrag(input)
+        end
+    end)
+
+    UserInputService.TouchMoved:Connect(function(touch)
+        if dragging and currentTouch then
+            UpdateDrag(touch)
+        end
+    end)
+
+    UserInputService.TouchEnded:Connect(function(touch)
+        if dragging and currentTouch then
+            EndDrag()
+        end
+    end)
+end
+
+MakeDraggable(mainFrame, titleBar)
+MakeDraggable(minimizedFrame, minTitleBar)
 
 ApplyFOV(70)
 StartFOVLoop()
