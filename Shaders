@@ -1,0 +1,182 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local shadersGui = Instance.new("ScreenGui")
+shadersGui.Name = "Brandon Hub Shaders"
+shadersGui.ResetOnSpawn = false
+shadersGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+shadersGui.Parent = player:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 140, 0, 40)
+mainFrame.Position = UDim2.new(1, -150, 0.5, -20)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = shadersGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
+corner.Parent = mainFrame
+
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 20)
+titleBar.BackgroundColor3 = Color3.fromRGB(200, 110, 0)
+titleBar.BackgroundTransparency = 0.3
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = titleBar
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+titleLabel.Position = UDim2.new(0, 6, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Brandon Shaders"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 10
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Parent = titleBar
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 16, 0, 16)
+closeButton.Position = UDim2.new(1, -19, 0, 2)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextSize = 8
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 4)
+closeCorner.Parent = closeButton
+
+closeButton.MouseButton1Click:Connect(function()
+    shadersGui:Destroy()
+end)
+
+local executeButton = Instance.new("TextButton")
+executeButton.Size = UDim2.new(0.9, 0, 0, 18)
+executeButton.Position = UDim2.new(0.05, 0, 0, 22)
+executeButton.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
+executeButton.BackgroundTransparency = 0.3
+executeButton.Text = "Execute PShade Ultimate"
+executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeButton.TextSize = 9
+executeButton.TextWrapped = true
+executeButton.Font = Enum.Font.GothamBold
+executeButton.Parent = mainFrame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 5)
+buttonCorner.Parent = executeButton
+
+executeButton.MouseButton1Click:Connect(function()
+    pcall(function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/randomstring0/pshade-ultimate/refs/heads/main/src/cd.lua'))()
+    end)
+end)
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+local currentTouch = nil
+
+local function StartDrag(input)
+    if input then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        if input.UserInputType == Enum.UserInputType.Touch then
+            currentTouch = input
+        end
+    end
+end
+
+local function UpdateDrag(input)
+    if dragging and dragStart and startPos and input then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end
+
+local function EndDrag()
+    dragging = false
+    dragStart = nil
+    startPos = nil
+    currentTouch = nil
+end
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        StartDrag(input)
+    end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        UpdateDrag(input)
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        EndDrag()
+    end
+end)
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        local inputPos = input.Position
+        local buttonAbsPos = executeButton.AbsolutePosition
+        local buttonAbsSize = executeButton.AbsoluteSize
+        local isOnButton = inputPos.X >= buttonAbsPos.X and inputPos.X <= buttonAbsPos.X + buttonAbsSize.X and
+                          inputPos.Y >= buttonAbsPos.Y and inputPos.Y <= buttonAbsPos.Y + buttonAbsSize.Y
+        if not isOnButton then
+            StartDrag(input)
+        end
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        UpdateDrag(input)
+    end
+end)
+
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        EndDrag()
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        UpdateDrag(input)
+    end
+end)
+
+UserInputService.TouchMoved:Connect(function(touch)
+    if dragging and currentTouch then
+        UpdateDrag(touch)
+    end
+end)
+
+UserInputService.TouchEnded:Connect(function(touch)
+    if dragging and currentTouch then
+        EndDrag()
+    end
+end)
