@@ -1,0 +1,695 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BrandonKillFarmV2"
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 210, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -105, 0.02, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 180, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 0))
+})
+gradient.Parent = mainFrame
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(1, 0, 0, 22)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Brandon Kill Farm"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Parent = mainFrame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 16, 0, 16)
+closeButton.Position = UDim2.new(1, -20, 0, 3)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+local notesLabel = Instance.new("TextLabel")
+notesLabel.Name = "NotesLabel"
+notesLabel.Size = UDim2.new(0.95, 0, 0, 16)
+notesLabel.Position = UDim2.new(0.025, 0, 0.07, 0)
+notesLabel.BackgroundTransparency = 1
+notesLabel.Text = "Enable Anti Grab from Invisibilities Tab!"
+notesLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+notesLabel.TextScaled = true
+notesLabel.Font = Enum.Font.Gotham
+notesLabel.Parent = mainFrame
+
+local whitelistStatus = Instance.new("TextLabel")
+whitelistStatus.Name = "WhitelistStatus"
+whitelistStatus.Size = UDim2.new(0.9, 0, 0, 12)
+whitelistStatus.Position = UDim2.new(0.05, 0, 0.13, 0)
+whitelistStatus.BackgroundTransparency = 1
+whitelistStatus.Text = "Whitelisted: 0"
+whitelistStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
+whitelistStatus.TextScaled = true
+whitelistStatus.Font = Enum.Font.Gotham
+whitelistStatus.Parent = mainFrame
+
+local whitelistToggle = Instance.new("TextButton")
+whitelistToggle.Name = "WhitelistToggle"
+whitelistToggle.Size = UDim2.new(0.9, 0, 0, 20)
+whitelistToggle.Position = UDim2.new(0.05, 0, 0.18, 0)
+whitelistToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+whitelistToggle.Text = "Auto TMK: OFF"
+whitelistToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+whitelistToggle.TextScaled = true
+whitelistToggle.Font = Enum.Font.GothamBold
+whitelistToggle.Parent = mainFrame
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 8)
+toggleCorner.Parent = whitelistToggle
+
+local whitelistEnabled = false
+local whitelistedPlayers = {}
+local tmkWhitelisted = {}
+
+local function hasTMK(player)
+    if not player then return false end
+    local displayName = string.upper(player.DisplayName)
+    local userName = string.upper(player.Name)
+    return string.find(displayName, "TMK", 1, true) or string.find(userName, "TMK", 1, true)
+end
+
+whitelistToggle.MouseButton1Click:Connect(function()
+    whitelistEnabled = not whitelistEnabled
+    whitelistToggle.Text = "Auto TMK: " .. (whitelistEnabled and "ON" or "OFF")
+    whitelistToggle.BackgroundColor3 = whitelistEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+    
+    if whitelistEnabled then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and hasTMK(player) then
+                local alreadyWhitelisted = false
+                for _, wp in ipairs(whitelistedPlayers) do
+                    if wp == player then
+                        alreadyWhitelisted = true
+                        break
+                    end
+                end
+                if not alreadyWhitelisted then
+                    table.insert(whitelistedPlayers, player)
+                    table.insert(tmkWhitelisted, player)
+                end
+            end
+        end
+        updateWhitelistDisplay()
+    else
+        for _, tmkPlayer in ipairs(tmkWhitelisted) do
+            for i, wp in ipairs(whitelistedPlayers) do
+                if wp == tmkPlayer then
+                    table.remove(whitelistedPlayers, i)
+                    break
+                end
+            end
+        end
+        tmkWhitelisted = {}
+        updateWhitelistDisplay()
+    end
+end)
+
+local textBox = Instance.new("TextBox")
+textBox.Name = "TextBox"
+textBox.Size = UDim2.new(0.6, 0, 0, 18)
+textBox.Position = UDim2.new(0.05, 0, 0.26, 0)
+textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.PlaceholderText = "Enter name..."
+textBox.Text = ""
+textBox.Font = Enum.Font.Gotham
+textBox.TextScaled = true
+textBox.Parent = mainFrame
+
+local textCorner = Instance.new("UICorner")
+textCorner.CornerRadius = UDim.new(0, 4)
+textCorner.Parent = textBox
+
+local addButton = Instance.new("TextButton")
+addButton.Name = "AddButton"
+addButton.Size = UDim2.new(0.28, 0, 0, 18)
+addButton.Position = UDim2.new(0.67, 0, 0.26, 0)
+addButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+addButton.Text = "+"
+addButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+addButton.TextScaled = true
+addButton.Font = Enum.Font.GothamBold
+addButton.Parent = mainFrame
+
+local addCorner = Instance.new("UICorner")
+addCorner.CornerRadius = UDim.new(0, 4)
+addCorner.Parent = addButton
+
+local removeButton = Instance.new("TextButton")
+removeButton.Name = "RemoveButton"
+removeButton.Size = UDim2.new(0.28, 0, 0, 18)
+removeButton.Position = UDim2.new(0.67, 0, 0.33, 0)
+removeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+removeButton.Text = "-"
+removeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+removeButton.TextScaled = true
+removeButton.Font = Enum.Font.GothamBold
+removeButton.Parent = mainFrame
+
+local removeCorner = Instance.new("UICorner")
+removeCorner.CornerRadius = UDim.new(0, 4)
+removeCorner.Parent = removeButton
+
+local whitelistFrame = Instance.new("Frame")
+whitelistFrame.Name = "WhitelistFrame"
+whitelistFrame.Size = UDim2.new(0.9, 0, 0, 60)
+whitelistFrame.Position = UDim2.new(0.05, 0, 0.38, 0)
+whitelistFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+whitelistFrame.BackgroundTransparency = 0.3
+whitelistFrame.Parent = mainFrame
+
+local whitelistCorner = Instance.new("UICorner")
+whitelistCorner.CornerRadius = UDim.new(0, 8)
+whitelistCorner.Parent = whitelistFrame
+
+local whitelistLabel = Instance.new("TextLabel")
+whitelistLabel.Name = "WhitelistLabel"
+whitelistLabel.Size = UDim2.new(1, 0, 0, 12)
+whitelistLabel.Position = UDim2.new(0, 0, 0, 0)
+whitelistLabel.BackgroundTransparency = 1
+whitelistLabel.Text = "Whitelisted:"
+whitelistLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+whitelistLabel.TextScaled = true
+whitelistLabel.Font = Enum.Font.Gotham
+whitelistLabel.Parent = whitelistFrame
+
+local whitelistScroll = Instance.new("ScrollingFrame")
+whitelistScroll.Name = "WhitelistScroll"
+whitelistScroll.Size = UDim2.new(1, 0, 1, -14)
+whitelistScroll.Position = UDim2.new(0, 0, 0, 13)
+whitelistScroll.BackgroundTransparency = 1
+whitelistScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+whitelistScroll.ScrollBarThickness = 3
+whitelistScroll.Parent = whitelistFrame
+
+local whitelistLayout = Instance.new("UIListLayout")
+whitelistLayout.Name = "WhitelistLayout"
+whitelistLayout.SortOrder = Enum.SortOrder.Name
+whitelistLayout.Padding = UDim.new(0, 2)
+whitelistLayout.Parent = whitelistScroll
+
+local hugToggle = Instance.new("TextButton")
+hugToggle.Name = "HugToggle"
+hugToggle.Size = UDim2.new(0.9, 0, 0, 20)
+hugToggle.Position = UDim2.new(0.05, 0, 0.60, 0)
+hugToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+hugToggle.Text = "Hug Farm: OFF"
+hugToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+hugToggle.TextScaled = true
+hugToggle.Font = Enum.Font.GothamBold
+hugToggle.Parent = mainFrame
+
+local hugCorner = Instance.new("UICorner")
+hugCorner.CornerRadius = UDim.new(0, 8)
+hugCorner.Parent = hugToggle
+
+local grabToggle = Instance.new("TextButton")
+grabToggle.Name = "GrabToggle"
+grabToggle.Size = UDim2.new(0.9, 0, 0, 20)
+grabToggle.Position = UDim2.new(0.05, 0, 0.68, 0)
+grabToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+grabToggle.Text = "Auto Grab: OFF"
+grabToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+grabToggle.TextScaled = true
+grabToggle.Font = Enum.Font.GothamBold
+grabToggle.Parent = mainFrame
+
+local grabCorner = Instance.new("UICorner")
+grabCorner.CornerRadius = UDim.new(0, 8)
+grabCorner.Parent = grabToggle
+
+local killToggle = Instance.new("TextButton")
+killToggle.Name = "KillToggle"
+killToggle.Size = UDim2.new(0.9, 0, 0, 20)
+killToggle.Position = UDim2.new(0.05, 0, 0.76, 0)
+killToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+killToggle.Text = "Kill Aura: OFF"
+killToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+killToggle.TextScaled = true
+killToggle.Font = Enum.Font.GothamBold
+killToggle.Parent = mainFrame
+
+local killCorner = Instance.new("UICorner")
+killCorner.CornerRadius = UDim.new(0, 8)
+killCorner.Parent = killToggle
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Name = "StatusLabel"
+statusLabel.Size = UDim2.new(0.9, 0, 0, 14)
+statusLabel.Position = UDim2.new(0.05, 0, 0.86, 0)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Status: Idle"
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+statusLabel.TextScaled = true
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.Parent = mainFrame
+
+local hugEnabled = false
+local grabEnabled = false
+local killEnabled = false
+local currentTarget = nil
+local fightingTimer = {}
+
+hugToggle.MouseButton1Click:Connect(function()
+    hugEnabled = not hugEnabled
+    hugToggle.Text = "Hug Farm: " .. (hugEnabled and "ON" or "OFF")
+    hugToggle.BackgroundColor3 = hugEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+    if not hugEnabled then currentTarget = nil end
+end)
+
+grabToggle.MouseButton1Click:Connect(function()
+    grabEnabled = not grabEnabled
+    grabToggle.Text = "Auto Grab: " .. (grabEnabled and "ON" or "OFF")
+    grabToggle.BackgroundColor3 = grabEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+end)
+
+killToggle.MouseButton1Click:Connect(function()
+    killEnabled = not killEnabled
+    killToggle.Text = "Kill Aura: " .. (killEnabled and "ON" or "OFF")
+    killToggle.BackgroundColor3 = killEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(100, 100, 100)
+end)
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function makeDraggable(frame)
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+    
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+makeDraggable(mainFrame)
+
+local function findMatchingPlayers(name)
+    if not name or name == "" then return {} end
+    name = string.lower(name)
+    local matches = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local displayName = string.lower(player.DisplayName)
+            local userName = string.lower(player.Name)
+            if string.find(displayName, name, 1, true) or string.find(userName, name, 1, true) then
+                table.insert(matches, player)
+            end
+        end
+    end
+    return matches
+end
+
+local function whitelistPlayer(player)
+    if not player or player == LocalPlayer then return false end
+    for i, wp in ipairs(whitelistedPlayers) do
+        if wp == player then return false end
+    end
+    table.insert(whitelistedPlayers, player)
+    updateWhitelistDisplay()
+    return true
+end
+
+local function removePlayerFromWhitelist(player)
+    if not player then return false end
+    if whitelistEnabled then
+        for _, tmkPlayer in ipairs(tmkWhitelisted) do
+            if tmkPlayer == player then
+                statusLabel.Text = "Can't remove TMK player"
+                return false
+            end
+        end
+    end
+    for i, wp in ipairs(whitelistedPlayers) do
+        if wp == player then
+            table.remove(whitelistedPlayers, i)
+            updateWhitelistDisplay()
+            return true
+        end
+    end
+    return false
+end
+
+local function updateWhitelistDisplay()
+    for _, child in ipairs(whitelistScroll:GetChildren()) do
+        if child:IsA("TextLabel") then child:Destroy() end
+    end
+    
+    whitelistStatus.Text = "Whitelisted: " .. #whitelistedPlayers
+    
+    if #whitelistedPlayers == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Size = UDim2.new(1, -10, 0, 14)
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Text = "No players whitelisted"
+        emptyLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        emptyLabel.TextScaled = true
+        emptyLabel.Font = Enum.Font.Gotham
+        emptyLabel.Parent = whitelistScroll
+        whitelistScroll.CanvasSize = UDim2.new(0, 0, 0, 18)
+        return
+    end
+    
+    for _, player in ipairs(whitelistedPlayers) do
+        local playerLabel = Instance.new("TextLabel")
+        playerLabel.Size = UDim2.new(1, -10, 0, 14)
+        playerLabel.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+        playerLabel.Text = player.Name
+        playerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        playerLabel.TextScaled = true
+        playerLabel.Font = Enum.Font.Gotham
+        playerLabel.Parent = whitelistScroll
+        
+        local labelCorner = Instance.new("UICorner")
+        labelCorner.CornerRadius = UDim.new(0, 4)
+        labelCorner.Parent = playerLabel
+        
+        local isTMK = false
+        for _, tmkPlayer in ipairs(tmkWhitelisted) do
+            if tmkPlayer == player then
+                isTMK = true
+                break
+            end
+        end
+        if isTMK then
+            playerLabel.Text = player.Name .. " (TMK)"
+            playerLabel.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        end
+    end
+    
+    whitelistScroll.CanvasSize = UDim2.new(0, 0, 0, #whitelistedPlayers * 16 + 5)
+end
+
+textBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local input = textBox.Text
+    if input and input ~= "" then
+        local matches = findMatchingPlayers(input)
+        if #matches > 0 then
+            local names = {}
+            for i, player in ipairs(matches) do
+                if i <= 3 then
+                    table.insert(names, player.Name)
+                end
+            end
+            local displayText = table.concat(names, ", ")
+            if #matches > 3 then
+                displayText = displayText .. " and " .. (#matches - 3) .. " more"
+            end
+            statusLabel.Text = "Found: " .. displayText
+        else
+            statusLabel.Text = "No players found"
+        end
+    else
+        statusLabel.Text = "Ready"
+    end
+end)
+
+addButton.MouseButton1Click:Connect(function()
+    local playerName = textBox.Text
+    if playerName and playerName ~= "" then
+        local matches = findMatchingPlayers(playerName)
+        if #matches > 0 then
+            local added = 0
+            for _, player in ipairs(matches) do
+                if whitelistPlayer(player) then added = added + 1 end
+            end
+            if added > 0 then
+                statusLabel.Text = "Added " .. added .. " player(s)"
+                textBox.Text = ""
+            else
+                statusLabel.Text = "Already whitelisted"
+            end
+        else
+            statusLabel.Text = "No players found"
+        end
+    else
+        statusLabel.Text = "Enter a name"
+    end
+end)
+
+removeButton.MouseButton1Click:Connect(function()
+    local playerName = textBox.Text
+    if playerName and playerName ~= "" then
+        local matches = findMatchingPlayers(playerName)
+        if #matches > 0 then
+            local removed = 0
+            for _, player in ipairs(matches) do
+                if removePlayerFromWhitelist(player) then removed = removed + 1 end
+            end
+            if removed > 0 then
+                statusLabel.Text = "Removed " .. removed .. " player(s)"
+                textBox.Text = ""
+            else
+                statusLabel.Text = "Not whitelisted"
+            end
+        else
+            statusLabel.Text = "No players found"
+        end
+    else
+        statusLabel.Text = "Enter a name"
+    end
+end)
+
+local GrabEvent = ReplicatedStorage:FindFirstChild("Packages") and 
+                  ReplicatedStorage.Packages:FindFirstChild("Knit") and 
+                  ReplicatedStorage.Packages.Knit:FindFirstChild("Services") and 
+                  ReplicatedStorage.Packages.Knit.Services:FindFirstChild("CombatService") and 
+                  ReplicatedStorage.Packages.Knit.Services.CombatService:FindFirstChild("RF") and 
+                  ReplicatedStorage.Packages.Knit.Services.CombatService.RF:FindFirstChild("Grab")
+
+local HitEvent = ReplicatedStorage:FindFirstChild("Packages") and 
+                 ReplicatedStorage.Packages:FindFirstChild("Knit") and 
+                 ReplicatedStorage.Packages.Knit:FindFirstChild("Services") and 
+                 ReplicatedStorage.Packages.Knit.Services:FindFirstChild("CombatService") and 
+                 ReplicatedStorage.Packages.Knit.Services.CombatService:FindFirstChild("RF") and 
+                 ReplicatedStorage.Packages.Knit.Services.CombatService.RF:FindFirstChild("Hit")
+
+local function isPlayerFighting(player)
+    if not player then return false end
+    local attributes = player:GetAttributes()
+    return attributes["Fighting"] == true
+end
+
+local function findTarget()
+    local bestTarget = nil
+    local currentTime = tick()
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            if humanoid.Health > 0 then
+                local isWhitelisted = false
+                for _, wp in ipairs(whitelistedPlayers) do
+                    if wp == player then
+                        isWhitelisted = true
+                        break
+                    end
+                end
+                if not isWhitelisted then
+                    if isPlayerFighting(player) then
+                        fightingTimer[player] = currentTime
+                        bestTarget = player
+                        break
+                    else
+                        if fightingTimer[player] then
+                            if currentTime - fightingTimer[player] > 2.5 then
+                                fightingTimer[player] = nil
+                            else
+                                bestTarget = player
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    return bestTarget
+end
+
+local function spamKillAura(target)
+    if not target or not killEnabled then return end
+    if not target.Character or not target.Character:FindFirstChild("Humanoid") then return end
+    
+    local targetHumanoid = target.Character.Humanoid
+    local rootPart = target.Character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return end
+    
+    local targetPos = rootPart.Position
+    
+    for i = 1, 5 do
+        if not killEnabled or not target or not target.Character or not target.Character:FindFirstChild("Humanoid") or target.Character.Humanoid.Health <= 0 then
+            break
+        end
+        pcall(function()
+            if HitEvent then
+                HitEvent:InvokeServer(targetHumanoid, targetPos)
+            end
+        end)
+        task.wait(0.001)
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+    updateWhitelistDisplay()
+    
+    if whitelistEnabled then
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and hasTMK(player) then
+                local alreadyWhitelisted = false
+                for _, wp in ipairs(whitelistedPlayers) do
+                    if wp == player then
+                        alreadyWhitelisted = true
+                        break
+                    end
+                end
+                if not alreadyWhitelisted then
+                    table.insert(whitelistedPlayers, player)
+                    table.insert(tmkWhitelisted, player)
+                    updateWhitelistDisplay()
+                end
+            end
+        end
+    end
+    
+    if not hugEnabled and not grabEnabled and not killEnabled then
+        statusLabel.Text = "Idle - No features enabled"
+        return
+    end
+    
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humanoid") then
+        statusLabel.Text = "Waiting for respawn..."
+        return
+    end
+    
+    local humanoid = LocalPlayer.Character.Humanoid
+    if humanoid.Health <= 0 then
+        statusLabel.Text = "Dead - Waiting..."
+        return
+    end
+    
+    local target = findTarget()
+    currentTarget = target
+    
+    if not target then
+        statusLabel.Text = "No valid targets"
+        return
+    end
+    
+    if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = target.Character.HumanoidRootPart
+        local targetPos = rootPart.Position
+        
+        if hugEnabled then
+            pcall(function()
+                LocalPlayer.Character.HumanoidRootPart.CFrame = rootPart.CFrame + Vector3.new(0, 3, 0)
+            end)
+            statusLabel.Text = "Hugging: " .. target.Name
+        end
+        
+        if grabEnabled and GrabEvent then
+            pcall(function()
+                GrabEvent:InvokeServer()
+            end)
+            statusLabel.Text = "Grabbing: " .. target.Name
+        end
+        
+        if killEnabled and HitEvent then
+            spamKillAura(target)
+            statusLabel.Text = "Killing: " .. target.Name
+        end
+    end
+end)
+
+local function onPlayerAdded(player)
+    player:GetAttributeChangedSignal("Fighting"):Connect(function()
+        if currentTarget == player then
+            if not isPlayerFighting(player) then
+                fightingTimer[player] = tick()
+            else
+                fightingTimer[player] = nil
+            end
+        end
+    end)
+    
+    player.CharacterAdded:Connect(function(character)
+        character.Humanoid.Died:Connect(function()
+            if currentTarget == player then
+                currentTarget = nil
+                fightingTimer[player] = nil
+            end
+        end)
+    end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    character.Humanoid.Died:Connect(function()
+        currentTarget = nil
+    end)
+end)
+
+updateWhitelistDisplay()
+statusLabel.Text = "Ready"
