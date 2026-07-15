@@ -11,8 +11,8 @@ shadersGui.Parent = player:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 140, 0, 40)
-mainFrame.Position = UDim2.new(1, -150, 0.5, -20)
+mainFrame.Size = UDim2.new(0, 160, 0, 75)
+mainFrame.Position = UDim2.new(1, -170, 0.5, -37.5)
 mainFrame.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
 mainFrame.BackgroundTransparency = 0.1
 mainFrame.BorderSizePixel = 0
@@ -38,7 +38,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0.7, 0, 1, 0)
 titleLabel.Position = UDim2.new(0, 6, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Brandon Shaders"
+titleLabel.Text = "🎨 Shaders"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.TextSize = 10
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -63,25 +63,47 @@ closeButton.MouseButton1Click:Connect(function()
     shadersGui:Destroy()
 end)
 
-local executeButton = Instance.new("TextButton")
-executeButton.Size = UDim2.new(0.9, 0, 0, 18)
-executeButton.Position = UDim2.new(0.05, 0, 0, 22)
-executeButton.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
-executeButton.BackgroundTransparency = 0.3
-executeButton.Text = "Execute PShade Ultimate"
-executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-executeButton.TextSize = 9
-executeButton.TextWrapped = true
-executeButton.Font = Enum.Font.GothamBold
-executeButton.Parent = mainFrame
+local executeButton1 = Instance.new("TextButton")
+executeButton1.Size = UDim2.new(0.9, 0, 0, 18)
+executeButton1.Position = UDim2.new(0.05, 0, 0, 22)
+executeButton1.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
+executeButton1.BackgroundTransparency = 0.3
+executeButton1.Text = "Execute PShade Ultimate"
+executeButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeButton1.TextSize = 9
+executeButton1.TextWrapped = true
+executeButton1.Font = Enum.Font.GothamBold
+executeButton1.Parent = mainFrame
 
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, 5)
-buttonCorner.Parent = executeButton
+local buttonCorner1 = Instance.new("UICorner")
+buttonCorner1.CornerRadius = UDim.new(0, 5)
+buttonCorner1.Parent = executeButton1
 
-executeButton.MouseButton1Click:Connect(function()
+executeButton1.MouseButton1Click:Connect(function()
     pcall(function()
         loadstring(game:HttpGet('https://raw.githubusercontent.com/randomstring0/pshade-ultimate/refs/heads/main/src/cd.lua'))()
+    end)
+end)
+
+local executeButton2 = Instance.new("TextButton")
+executeButton2.Size = UDim2.new(0.9, 0, 0, 18)
+executeButton2.Position = UDim2.new(0.05, 0, 0, 43)
+executeButton2.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
+executeButton2.BackgroundTransparency = 0.3
+executeButton2.Text = "Execute ShaderZ Nitro"
+executeButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeButton2.TextSize = 9
+executeButton2.TextWrapped = true
+executeButton2.Font = Enum.Font.GothamBold
+executeButton2.Parent = mainFrame
+
+local buttonCorner2 = Instance.new("UICorner")
+buttonCorner2.CornerRadius = UDim.new(0, 5)
+buttonCorner2.Parent = executeButton2
+
+executeButton2.MouseButton1Click:Connect(function()
+    pcall(function()
+        loadstring(game:HttpGet("https://gist.githubusercontent.com/LickRazew/2d3f6937c63ba598f1858fba5a1ce39f/raw/"))()
     end)
 end)
 
@@ -141,11 +163,17 @@ end)
 mainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         local inputPos = input.Position
-        local buttonAbsPos = executeButton.AbsolutePosition
-        local buttonAbsSize = executeButton.AbsoluteSize
-        local isOnButton = inputPos.X >= buttonAbsPos.X and inputPos.X <= buttonAbsPos.X + buttonAbsSize.X and
-                          inputPos.Y >= buttonAbsPos.Y and inputPos.Y <= buttonAbsPos.Y + buttonAbsSize.Y
-        if not isOnButton then
+        local button1AbsPos = executeButton1.AbsolutePosition
+        local button1AbsSize = executeButton1.AbsoluteSize
+        local button2AbsPos = executeButton2.AbsolutePosition
+        local button2AbsSize = executeButton2.AbsoluteSize
+        
+        local isOnButton1 = inputPos.X >= button1AbsPos.X and inputPos.X <= button1AbsPos.X + button1AbsSize.X and
+                          inputPos.Y >= button1AbsPos.Y and inputPos.Y <= button1AbsPos.Y + button1AbsSize.Y
+        local isOnButton2 = inputPos.X >= button2AbsPos.X and inputPos.X <= button2AbsPos.X + button2AbsSize.X and
+                          inputPos.Y >= button2AbsPos.Y and inputPos.Y <= button2AbsPos.Y + button2AbsSize.Y
+        
+        if not isOnButton1 and not isOnButton2 then
             StartDrag(input)
         end
     end
