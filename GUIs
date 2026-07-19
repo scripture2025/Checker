@@ -9,8 +9,8 @@ screenGui.Parent = player.PlayerGui
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 220, 0, 310)
-mainFrame.Position = UDim2.new(0.5, -110, 0.5, -155)
+mainFrame.Size = UDim2.new(0, 220, 0, 350)
+mainFrame.Position = UDim2.new(0.5, -110, 0.5, -175)
 mainFrame.BackgroundColor3 = Color3.fromRGB(40, 25, 15)
 mainFrame.BackgroundTransparency = 0.92
 mainFrame.BorderSizePixel = 2
@@ -73,6 +73,7 @@ contentFrame.Position = UDim2.new(0, 8, 0, 34)
 contentFrame.BackgroundTransparency = 1
 contentFrame.Parent = mainFrame
 
+-- Button 1
 local button1 = Instance.new("TextButton")
 button1.Name = "Button1"
 button1.Size = UDim2.new(0.9, 0, 0, 32)
@@ -97,6 +98,7 @@ button1.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Button 2
 local button2 = Instance.new("TextButton")
 button2.Name = "Button2"
 button2.Size = UDim2.new(0.9, 0, 0, 32)
@@ -121,6 +123,7 @@ button2.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Button 3
 local button3 = Instance.new("TextButton")
 button3.Name = "Button3"
 button3.Size = UDim2.new(0.9, 0, 0, 32)
@@ -145,6 +148,7 @@ button3.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Button 4
 local button4 = Instance.new("TextButton")
 button4.Name = "Button4"
 button4.Size = UDim2.new(0.9, 0, 0, 32)
@@ -169,6 +173,7 @@ button4.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Button 5
 local button5 = Instance.new("TextButton")
 button5.Name = "Button5"
 button5.Size = UDim2.new(0.9, 0, 0, 32)
@@ -193,10 +198,35 @@ button5.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- NEW Button 6: Execute Audio Player
+local button6 = Instance.new("TextButton")
+button6.Name = "Button6"
+button6.Size = UDim2.new(0.9, 0, 0, 32)
+button6.Position = UDim2.new(0.05, 0, 0, 190)
+button6.BackgroundColor3 = Color3.fromRGB(60, 35, 15)
+button6.BackgroundTransparency = 0.3
+button6.BorderSizePixel = 2
+button6.BorderColor3 = Color3.fromRGB(255, 160, 50)
+button6.Text = "Execute Audio Player (Very Cool)"
+button6.TextColor3 = Color3.fromRGB(255, 180, 80)
+button6.TextSize = 12
+button6.Font = Enum.Font.GothamBold
+button6.Parent = contentFrame
+
+local button6Corner = Instance.new("UICorner")
+button6Corner.CornerRadius = UDim.new(0, 6)
+button6Corner.Parent = button6
+
+button6.MouseButton1Click:Connect(function()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/lmaolmaolmaodawg/Hehe/refs/heads/main/music"))()
+    end)
+end)
+
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "StatusLabel"
 statusLabel.Size = UDim2.new(0.9, 0, 0, 16)
-statusLabel.Position = UDim2.new(0.05, 0, 0, 192)
+statusLabel.Position = UDim2.new(0.05, 0, 0, 230)
 statusLabel.BackgroundTransparency = 1
 statusLabel.Text = "Ready"
 statusLabel.TextColor3 = Color3.fromRGB(150, 200, 100)
@@ -208,7 +238,7 @@ statusLabel.Parent = contentFrame
 local notesLabel1 = Instance.new("TextLabel")
 notesLabel1.Name = "NotesLabel1"
 notesLabel1.Size = UDim2.new(0.9, 0, 0, 16)
-notesLabel1.Position = UDim2.new(0.05, 0, 0, 210)
+notesLabel1.Position = UDim2.new(0.05, 0, 0, 248)
 notesLabel1.BackgroundColor3 = Color3.fromRGB(50, 30, 15)
 notesLabel1.BackgroundTransparency = 0.5
 notesLabel1.BorderSizePixel = 1
@@ -224,7 +254,7 @@ notesLabel1.Parent = contentFrame
 local notesLabel2 = Instance.new("TextLabel")
 notesLabel2.Name = "NotesLabel2"
 notesLabel2.Size = UDim2.new(0.9, 0, 0, 30)
-notesLabel2.Position = UDim2.new(0.05, 0, 0, 228)
+notesLabel2.Position = UDim2.new(0.05, 0, 0, 266)
 notesLabel2.BackgroundColor3 = Color3.fromRGB(50, 30, 15)
 notesLabel2.BackgroundTransparency = 0.5
 notesLabel2.BorderSizePixel = 1
