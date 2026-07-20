@@ -1,4 +1,3 @@
--- working
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -74,14 +73,6 @@ local function freezePlayer(player)
         if hrp then
             pcall(function()
                 hrp.CFrame = CFrame.new(-62, 4, -12)
-            end)
-        end
-        if player == Players.LocalPlayer then
-            pcall(function()
-                local camera = Workspace.CurrentCamera
-                if camera then
-                    camera.FieldOfView = 20
-                end
             end)
         end
     end)
@@ -173,25 +164,6 @@ local function kickPlayer(executor, targetName)
     end)
 end
 
-local function bringAll(executor)
-    if not executor or not executor.Character then return end
-    if not isAdmin(executor) and not isAuthorized(executor) then return end
-    pcall(function()
-        local executorHRP = executor.Character:FindFirstChild("HumanoidRootPart")
-        if not executorHRP then return end
-        for _, player in ipairs(Players:GetPlayers()) do
-            pcall(function()
-                if player and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) and player.Character then
-                    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        hrp.CFrame = executorHRP.CFrame + Vector3.new(0, 3, 0)
-                    end
-                end
-            end)
-        end
-    end)
-end
-
 local function killAll(executor)
     if not isAdmin(executor) and not isAuthorized(executor) then return end
     pcall(function()
@@ -238,9 +210,7 @@ local function setupChatListener(player)
                     end
                     if #args >= 1 then
                         local command = args[1]
-                        if command == ":bring all" then
-                            bringAll(player)
-                        elseif command == ":kill all" then
+                        if command == ":kill all" then
                             killAll(player)
                         elseif command == ":kick all" then
                             kickAll(player)
