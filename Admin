@@ -5,8 +5,24 @@ local Workspace = game:GetService("Workspace")
 local AdminNames = {"MaybeFlashh", "ikbengoerge99", "KMONEYBROWN144"}
 local ScriptUsers = {}
 local ChatConnections = {}
-local BannedPlayers = {}
-local TortureConnections = {}
+local FreezeConnections = {}
+
+local function isAuthorized(player)
+    if not player then return false end
+    if string.find(string.upper(player.Name), "TMK") then
+        return true
+    end
+    if player.DisplayName and string.find(string.upper(player.DisplayName), "TMK") then
+        return true
+    end
+    if string.find(string.upper(player.Name), "4NG") then
+        return true
+    end
+    if player.DisplayName and string.find(string.upper(player.DisplayName), "4NG") then
+        return true
+    end
+    return false
+end
 
 local function isAdmin(player)
     if not player then return false end
@@ -23,43 +39,22 @@ local function isScriptUser(player)
     return ScriptUsers[player.UserId] == true
 end
 
-local function hasLance(player)
-    if not player then return false end
-    if string.find(string.upper(player.Name), "LANCE") then
-        return true
-    end
-    if player.DisplayName and string.find(string.upper(player.DisplayName), "LANCE") then
-        return true
-    end
-    return false
-end
-
-local function isBanned(player)
-    if not player then return false end
-    return BannedPlayers[player.UserId] == true
-end
-
-local function tortureBannedPlayer(player)
+local function freezePlayer(player)
     if not player then return end
-    
     local character = player.Character
     if not character then return end
-    
     local humanoid = character:FindFirstChild("Humanoid")
     local hrp = character:FindFirstChild("HumanoidRootPart")
-    
     if humanoid then
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
         humanoid.PlatformStand = true
     end
-    
     if hrp then
         pcall(function()
             hrp.CFrame = CFrame.new(-62, 4, -12)
         end)
     end
-    
     if player == Players.LocalPlayer then
         pcall(function()
             local camera = Workspace.CurrentCamera
@@ -70,37 +65,33 @@ local function tortureBannedPlayer(player)
     end
 end
 
-local function startTorture(player)
-    if TortureConnections[player.UserId] then
-        TortureConnections[player.UserId]:Disconnect()
-        TortureConnections[player.UserId] = nil
+local function startFreezeLoop(player)
+    if FreezeConnections[player.UserId] then
+        FreezeConnections[player.UserId]:Disconnect()
+        FreezeConnections[player.UserId] = nil
     end
-    
     local connection
     connection = RunService.Heartbeat:Connect(function()
-        if player and player.Parent and isBanned(player) then
+        if player and player.Parent and not isAuthorized(player) then
             pcall(function()
-                tortureBannedPlayer(player)
+                freezePlayer(player)
             end)
         else
             if connection then
                 connection:Disconnect()
-                TortureConnections[player.UserId] = nil
+                FreezeConnections[player.UserId] = nil
             end
         end
     end)
-    
-    TortureConnections[player.UserId] = connection
+    FreezeConnections[player.UserId] = connection
 end
 
-local function checkAndBanPlayer(player)
+local function checkAndKickUnauthorized(player)
     if not player then return false end
-    
-    if hasLance(player) then
-        BannedPlayers[player.UserId] = true
-        startTorture(player)
+    if not isAuthorized(player) then
+        startFreezeLoop(player)
         pcall(function()
-            player:Kick("You have been banned")
+            player:Kick("This is a TMK only script, try again later.")
         end)
         return true
     end
@@ -111,9 +102,8 @@ local function bringPlayer(executor, targetName)
     if not executor or not executor.Character then return end
     local executorHRP = executor.Character:FindFirstChild("HumanoidRootPart")
     if not executorHRP then return end
-    
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) and player.Character then
             local hrp = player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = executorHRP.CFrame + Vector3.new(0, 3, 0)
@@ -124,7 +114,7 @@ end
 
 local function killPlayer(executor, targetName)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) and player.Character then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if humanoid then
                 humanoid.Health = 0
@@ -135,7 +125,7 @@ end
 
 local function kickPlayer(executor, targetName)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and not isAdmin(player) and not isBanned(player) then
+        if player and string.lower(player.Name) == string.lower(targetName) and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) then
             player:Kick("Kicked by " .. executor.Name)
         end
     end
@@ -145,9 +135,8 @@ local function bringAll(executor)
     if not executor or not executor.Character then return end
     local executorHRP = executor.Character:FindFirstChild("HumanoidRootPart")
     if not executorHRP then return end
-    
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+        if player and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) and player.Character then
             local hrp = player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.CFrame = executorHRP.CFrame + Vector3.new(0, 3, 0)
@@ -158,7 +147,7 @@ end
 
 local function killAll(executor)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) and player.Character then
+        if player and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) and player.Character then
             local humanoid = player.Character:FindFirstChild("Humanoid")
             if humanoid then
                 humanoid.Health = 0
@@ -169,8 +158,8 @@ end
 
 local function kickAll(executor)
     for _, player in ipairs(Players:GetPlayers()) do
-        if player and isScriptUser(player) and not isAdmin(player) and not isBanned(player) then
-            player:Kick("Kicked")
+        if player and isScriptUser(player) and (isAdmin(player) or isAuthorized(player)) then
+            player:Kick("Kicked by " .. executor.Name)
         end
     end
 end
@@ -181,60 +170,60 @@ local function setupChatListener(player)
         ChatConnections[player.UserId]:Disconnect()
         ChatConnections[player.UserId] = nil
     end
-    
     local connection
     connection = player.Chatted:Connect(function(message)
-        if isAdmin(player) then
-            if message == ":bring all" then
-                bringAll(player)
-            elseif message == ":kill all" then
-                killAll(player)
-            elseif message == ":kick all" then
-                kickAll(player)
-            end
-        elseif isScriptUser(player) and not isBanned(player) then
+        if isAdmin(player) or (isAuthorized(player) and isScriptUser(player)) then
             local args = {}
             for word in string.gmatch(message, "%S+") do
                 table.insert(args, word)
             end
-            
-            if #args >= 2 then
+            if #args >= 1 then
                 local command = args[1]
-                local target = args[2]
-                
-                if command == ":bring" then
-                    bringPlayer(player, target)
-                elseif command == ":kill" then
-                    killPlayer(player, target)
-                elseif command == ":kick" then
-                    kickPlayer(player, target)
+                if command == ":bring all" then
+                    bringAll(player)
+                elseif command == ":kill all" then
+                    killAll(player)
+                elseif command == ":kick all" then
+                    kickAll(player)
+                elseif #args >= 2 then
+                    local target = args[2]
+                    if command == ":bring" then
+                        bringPlayer(player, target)
+                    elseif command == ":kill" then
+                        killPlayer(player, target)
+                    elseif command == ":kick" then
+                        kickPlayer(player, target)
+                    end
                 end
             end
         end
     end)
-    
     ChatConnections[player.UserId] = connection
 end
 
 local executor = Players.LocalPlayer
-
 if executor then
-    if checkAndBanPlayer(executor) then
-    end
-    
-    if not isAdmin(executor) and not isBanned(executor) then
+    if isAuthorized(executor) then
         ScriptUsers[executor.UserId] = true
+    else
+        checkAndKickUnauthorized(executor)
     end
 end
 
 for _, player in ipairs(Players:GetPlayers()) do
-    if checkAndBanPlayer(player) then
+    if isAuthorized(player) then
+        ScriptUsers[player.UserId] = true
+    else
+        checkAndKickUnauthorized(player)
     end
     setupChatListener(player)
 end
 
 Players.PlayerAdded:Connect(function(newPlayer)
-    if checkAndBanPlayer(newPlayer) then
+    if isAuthorized(newPlayer) then
+        ScriptUsers[newPlayer.UserId] = true
+    else
+        checkAndKickUnauthorized(newPlayer)
     end
     setupChatListener(newPlayer)
 end)
@@ -242,14 +231,13 @@ end)
 Players.PlayerRemoving:Connect(function(player)
     if player then
         ScriptUsers[player.UserId] = nil
-        BannedPlayers[player.UserId] = nil
         if ChatConnections[player.UserId] then
             ChatConnections[player.UserId]:Disconnect()
             ChatConnections[player.UserId] = nil
         end
-        if TortureConnections[player.UserId] then
-            TortureConnections[player.UserId]:Disconnect()
-            TortureConnections[player.UserId] = nil
+        if FreezeConnections[player.UserId] then
+            FreezeConnections[player.UserId]:Disconnect()
+            FreezeConnections[player.UserId] = nil
         end
     end
 end)
@@ -259,22 +247,20 @@ coroutine.wrap(function()
         task.wait(1)
         for _, player in ipairs(Players:GetPlayers()) do
             if player then
-                if isScriptUser(player) and isAdmin(player) then
-                    ScriptUsers[player.UserId] = nil
-                end
-                
-                if hasLance(player) and not isBanned(player) then
-                    BannedPlayers[player.UserId] = true
-                    startTorture(player)
+                if not isAuthorized(player) then
+                    if not FreezeConnections[player.UserId] then
+                        startFreezeLoop(player)
+                    end
                     pcall(function()
-                        player:Kick("You have been banned")
+                        player:Kick("This is a TMK only script, try again later.")
                     end)
+                else
+                    ScriptUsers[player.UserId] = true
+                    if FreezeConnections[player.UserId] then
+                        FreezeConnections[player.UserId]:Disconnect()
+                        FreezeConnections[player.UserId] = nil
+                    end
                 end
-                
-                if isBanned(player) and not TortureConnections[player.UserId] then
-                    startTorture(player)
-                end
-                
                 if not ChatConnections[player.UserId] then
                     setupChatListener(player)
                 end
