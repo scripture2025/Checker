@@ -2,7 +2,7 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BanAnti"))()
 
 local s = Instance.new("Sound", workspace)
-s.SoundId = "rbxassetid://17556446241"
+s.SoundId = "rbxassetid://92390329773200"
 s.Volume = 100
 s:Play()
 
