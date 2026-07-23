@@ -87,33 +87,21 @@ notes.Text =
 "Notes:\n• You must have the Gravity Coil.\n• Join the group to get the Gravity Coil."
 notes.Parent = frame
 
+-- Dragging variables
 local dragging = false
-local dragInput
 local dragStart
 local startPos
+local currentDragObject = nil
 
-frame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = frame.Position
+local function startDrag(input)
+	dragging = true
+	dragStart = input.Position
+	startPos = frame.Position
+	currentDragObject = input
+end
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-frame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UIS.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
+local function updateDrag(input)
+	if dragging and currentDragObject then
 		local delta = input.Position - dragStart
 		frame.Position = UDim2.new(
 			startPos.X.Scale,
@@ -121,6 +109,53 @@ UIS.InputChanged:Connect(function(input)
 			startPos.Y.Scale,
 			startPos.Y.Offset + delta.Y
 		)
+	end
+end
+
+local function endDrag()
+	dragging = false
+	currentDragObject = nil
+end
+
+-- Mouse drag (PC)
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		startDrag(input)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		updateDrag(input)
+	end
+end)
+
+frame.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		endDrag()
+	end
+end)
+
+-- Touch drag (Mobile)
+frame.TouchBegan:Connect(function(touch)
+	startDrag(touch)
+end)
+
+frame.TouchMoved:Connect(function(touch)
+	updateDrag(touch)
+end)
+
+frame.TouchEnded:Connect(function()
+	endDrag()
+end)
+
+-- Global fallback for input end (in case something gets missed)
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+	   input.UserInputType == Enum.UserInputType.Touch then
+		if dragging then
+			endDrag()
+		end
 	end
 end)
 
