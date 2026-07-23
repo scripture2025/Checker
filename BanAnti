@@ -1,0 +1,168 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local FLING_SPEED = 150
+local antiFlingEnabled = false
+local lastSafePosition
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Brandon Anti Ban Fling V2"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,300,0,180)
+frame.Position = UDim2.new(0.5,-150,0.5,-90)
+frame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0,8)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-35,0,30)
+title.Position = UDim2.new(0,10,0,0)
+title.BackgroundTransparency = 1
+title.Text = "Brandon Anti Ban Fling"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,25,0,25)
+close.Position = UDim2.new(1,-30,0,3)
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 16
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(0,260,0,35)
+toggle.Position = UDim2.new(0,20,0,40)
+toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+toggle.TextColor3 = Color3.new(1,1,1)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 16
+toggle.Text = "Anti Ban Fling: OFF"
+toggle.Parent = frame
+
+Instance.new("UICorner", toggle)
+
+toggle.MouseButton1Click:Connect(function()
+	antiFlingEnabled = not antiFlingEnabled
+
+	if antiFlingEnabled then
+		toggle.Text = "Anti Ban Fling: ON"
+		toggle.BackgroundColor3 = Color3.fromRGB(0,170,0)
+	else
+		toggle.Text = "Anti Ban Fling: OFF"
+		toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	end
+end)
+
+local notes = Instance.new("TextLabel")
+notes.Size = UDim2.new(1,-20,0,80)
+notes.Position = UDim2.new(0,10,0,90)
+notes.BackgroundTransparency = 1
+notes.TextWrapped = true
+notes.TextYAlignment = Enum.TextYAlignment.Top
+notes.TextColor3 = Color3.new(1,1,1)
+notes.Font = Enum.Font.Gotham
+notes.TextSize = 14
+notes.Text =
+"Notes:\n• You must have the Gravity Coil.\n• Join the group to get the Gravity Coil."
+notes.Parent = frame
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+local function equipGravityCoil(character)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	local tool = player.Backpack:FindFirstChild("Gravity Coil")
+	if tool then
+		humanoid:EquipTool(tool)
+	end
+end
+
+local function setup(character)
+	local hrp = character:WaitForChild("HumanoidRootPart")
+
+	RunService.Heartbeat:Connect(function()
+		if not antiFlingEnabled then
+			return
+		end
+
+		local speed = hrp.AssemblyLinearVelocity.Magnitude
+
+		if speed < 60 then
+			lastSafePosition = hrp.CFrame
+		end
+
+		if speed > FLING_SPEED and lastSafePosition then
+			equipGravityCoil(character)
+
+			local endTime = tick() + 0.5
+
+			while tick() < endTime do
+				hrp.CFrame = lastSafePosition
+				RunService.Heartbeat:Wait()
+			end
+		end
+	end)
+end
+
+if player.Character then
+	setup(player.Character)
+end
+
+player.CharacterAdded:Connect(setup)
