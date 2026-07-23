@@ -1,6 +1,15 @@
 -- helllo
 loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BanAnti"))()
 
+local s = Instance.new("Sound", workspace)
+s.SoundId = "rbxassetid://17556446241"
+s.Volume = 100
+s:Play()
+
+s.Ended:Connect(function()
+	s:Destroy()
+end)
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
