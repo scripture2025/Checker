@@ -11,8 +11,8 @@ shadersGui.Parent = player:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 160, 0, 75)
-mainFrame.Position = UDim2.new(1, -170, 0.5, -37.5)
+mainFrame.Size = UDim2.new(0, 200, 0, 130) -- Made bigger
+mainFrame.Position = UDim2.new(1, -210, 0.5, -65)
 mainFrame.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
 mainFrame.BackgroundTransparency = 0.1
 mainFrame.BorderSizePixel = 0
@@ -25,7 +25,7 @@ corner.Parent = mainFrame
 
 local titleBar = Instance.new("Frame")
 titleBar.Name = "TitleBar"
-titleBar.Size = UDim2.new(1, 0, 0, 20)
+titleBar.Size = UDim2.new(1, 0, 0, 25) -- Slightly taller title bar
 titleBar.BackgroundColor3 = Color3.fromRGB(200, 110, 0)
 titleBar.BackgroundTransparency = 0.3
 titleBar.Parent = mainFrame
@@ -38,20 +38,20 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0.7, 0, 1, 0)
 titleLabel.Position = UDim2.new(0, 6, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "🎨 Shaders"
+titleLabel.Text = "Brandon Shaders V3" -- Changed title
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 10
+titleLabel.TextSize = 12 -- Slightly bigger text
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.Parent = titleBar
 
 local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 16, 0, 16)
-closeButton.Position = UDim2.new(1, -19, 0, 2)
+closeButton.Size = UDim2.new(0, 18, 0, 18)
+closeButton.Position = UDim2.new(1, -22, 0, 3.5)
 closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 closeButton.Text = "✕"
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 8
+closeButton.TextSize = 10
 closeButton.Font = Enum.Font.GothamBold
 closeButton.Parent = titleBar
 
@@ -64,13 +64,13 @@ closeButton.MouseButton1Click:Connect(function()
 end)
 
 local executeButton1 = Instance.new("TextButton")
-executeButton1.Size = UDim2.new(0.9, 0, 0, 18)
-executeButton1.Position = UDim2.new(0.05, 0, 0, 22)
+executeButton1.Size = UDim2.new(0.9, 0, 0, 22) -- Taller
+executeButton1.Position = UDim2.new(0.05, 0, 0, 28)
 executeButton1.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
 executeButton1.BackgroundTransparency = 0.3
 executeButton1.Text = "Execute PShade Ultimate"
 executeButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
-executeButton1.TextSize = 9
+executeButton1.TextSize = 10 -- Bigger text
 executeButton1.TextWrapped = true
 executeButton1.Font = Enum.Font.GothamBold
 executeButton1.Parent = mainFrame
@@ -86,13 +86,13 @@ executeButton1.MouseButton1Click:Connect(function()
 end)
 
 local executeButton2 = Instance.new("TextButton")
-executeButton2.Size = UDim2.new(0.9, 0, 0, 18)
-executeButton2.Position = UDim2.new(0.05, 0, 0, 43)
+executeButton2.Size = UDim2.new(0.9, 0, 0, 22) -- Taller
+executeButton2.Position = UDim2.new(0.05, 0, 0, 53)
 executeButton2.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
 executeButton2.BackgroundTransparency = 0.3
 executeButton2.Text = "Execute ShaderZ Nitro"
 executeButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
-executeButton2.TextSize = 9
+executeButton2.TextSize = 10 -- Bigger text
 executeButton2.TextWrapped = true
 executeButton2.Font = Enum.Font.GothamBold
 executeButton2.Parent = mainFrame
@@ -104,6 +104,29 @@ buttonCorner2.Parent = executeButton2
 executeButton2.MouseButton1Click:Connect(function()
     pcall(function()
         loadstring(game:HttpGet("https://gist.githubusercontent.com/LickRazew/2d3f6937c63ba598f1858fba5a1ce39f/raw/"))()
+    end)
+end)
+
+-- NEW BUTTON 3: Simple Cool Shaders
+local executeButton3 = Instance.new("TextButton")
+executeButton3.Size = UDim2.new(0.9, 0, 0, 22) -- Taller
+executeButton3.Position = UDim2.new(0.05, 0, 0, 78) -- Positioned below button 2
+executeButton3.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
+executeButton3.BackgroundTransparency = 0.3
+executeButton3.Text = "Simple Cool Shaders" -- New button text
+executeButton3.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeButton3.TextSize = 10 -- Bigger text
+executeButton3.TextWrapped = true
+executeButton3.Font = Enum.Font.GothamBold
+executeButton3.Parent = mainFrame
+
+local buttonCorner3 = Instance.new("UICorner")
+buttonCorner3.CornerRadius = UDim.new(0, 5)
+buttonCorner3.Parent = executeButton3
+
+executeButton3.MouseButton1Click:Connect(function()
+    pcall(function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/p0e1/1/refs/heads/main/SimpleShader.lua'))()
     end)
 end)
 
@@ -167,13 +190,17 @@ mainFrame.InputBegan:Connect(function(input)
         local button1AbsSize = executeButton1.AbsoluteSize
         local button2AbsPos = executeButton2.AbsolutePosition
         local button2AbsSize = executeButton2.AbsoluteSize
+        local button3AbsPos = executeButton3.AbsolutePosition
+        local button3AbsSize = executeButton3.AbsoluteSize
         
         local isOnButton1 = inputPos.X >= button1AbsPos.X and inputPos.X <= button1AbsPos.X + button1AbsSize.X and
                           inputPos.Y >= button1AbsPos.Y and inputPos.Y <= button1AbsPos.Y + button1AbsSize.Y
         local isOnButton2 = inputPos.X >= button2AbsPos.X and inputPos.X <= button2AbsPos.X + button2AbsSize.X and
                           inputPos.Y >= button2AbsPos.Y and inputPos.Y <= button2AbsPos.Y + button2AbsSize.Y
+        local isOnButton3 = inputPos.X >= button3AbsPos.X and inputPos.X <= button3AbsPos.X + button3AbsSize.X and
+                          inputPos.Y >= button3AbsPos.Y and inputPos.Y <= button3AbsPos.Y + button3AbsSize.Y
         
-        if not isOnButton1 and not isOnButton2 then
+        if not isOnButton1 and not isOnButton2 and not isOnButton3 then
             StartDrag(input)
         end
     end
